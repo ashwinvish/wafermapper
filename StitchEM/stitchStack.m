@@ -119,36 +119,40 @@ for s = 1:length(sections)
         for j = i:length(sections(s).tiles(i).seams)
             if ~isempty(sections(s).tiles(i).seams{j})
                 % XY (same section seam)
-                seam = struct('sec', {s, s}, 'tile1', {i, j}, 'tile2', {j, i}, ...
-                    'SURFFeats', {sections(s).tiles(i).SURFFeats{j}, sections(s).tiles(j).SURFFeats{i}}, ...
-                    'SURFPoints', {sections(s).tiles(i).SURFPoints{j}, sections(s).tiles(j).SURFPoints{i}}, ...
-                    'inliers', []);
-                seams = [seams {seam}];
+                secs = [s, s];
+                tiles = [i, j];
+                edges = [j, i];
                 
                 % Z (seam with sections above or below)
                 for sec = 1:length(sections)
                     if abs(sec - s) == 1
                         % sec(a).tile(i) <-> sec(b).tile(i)
-                        seam = struct('sec', {s, sec}, 'tile1', {i, j}, 'tile2', {i, j}, ...
-                            'SURFFeats', {sections(s).tiles(i).SURFFeats{j}, sections(sec).tiles(i).SURFFeats{j}}, ...
-                            'SURFPoints', {sections(s).tiles(i).SURFPoints{j}, sections(sec).tiles(i).SURFPoints{j}}, ...
-                            'inliers', []);
-                        seams = [seams {seam}];
+                        secs = [secs; s, sec];
+                        tiles = [tiles; i, i];
+                        edges = [edges; j, j];
                         
                         % sec(a).tile(i) <-> sec(b).tile(j)
-                        seam = struct('sec', {s, sec}, 'tile1', {i, j}, 'tile2', {j, i}, ...
-                            'SURFFeats', {sections(s).tiles(i).SURFFeats{j}, sections(sec).tiles(j).SURFFeats{i}}, ...
-                            'SURFPoints', {sections(s).tiles(i).SURFPoints{j}, sections(sec).tiles(j).SURFPoints{i}}, ...
-                            'inliers', []);
-                        seams = [seams {seam}];
+                        secs = [secs; s, sec];
+                        tiles = [tiles; i, j];
+                        edges = [edges; j, i];
                         
                         % sec(a).tile(j) <-> sec(b).tile(j)
-                        seam = struct('sec', {s, sec}, 'tile1', {j, i}, 'tile2', {j, i}, ...
-                            'SURFFeats', {sections(s).tiles(j).SURFFeats{i}, sections(sec).tiles(j).SURFFeats{i}}, ...
-                            'SURFPoints', {sections(s).tiles(j).SURFPoints{i}, sections(sec).tiles(j).SURFPoints{i}}, ...
-                            'inliers', []);
-                        seams = [seams {seam}];
+                        secs = [secs; s, sec];
+                        tiles = [tiles; j, j];
+                        edges = [edges; i, i];
                     end
+                end
+                
+                % Construct seam structure needed for matching
+                for idxs = [secs tiles edges]'
+                    s1 = idxs(1); s2 = idxs(2);
+                    t1 = idxs(3); t2 = idxs(4);
+                    e1 = idxs(5); e2 = idxs(6);
+                    seam = struct('sec', {s1, s2}, 'tile', {t1, t2}, 'edge', {e1, e2}, ...
+                        'SURFFeats', { sections(s1).tiles(t1).SURFFeats{e1},  sections(s2).tiles(t2).SURFFeats{e2}}, ...
+                        'SURFPoints', {sections(s1).tiles(t1).SURFPoints{e1}, sections(s2).tiles(t2).SURFPoints{e2}}, ...
+                        'inliers', []);
+                    seams = [seams {seam}];
                 end
             end
         end
@@ -157,23 +161,65 @@ end
 
 % Find matches and inliers
 parfor n = 1:length(seams)
+    % TODO: Figure out if we're using section parameters or stack params
 %     params.MatchThreshold
 %     params.MaxRatio
 %     params.NumTrials
 %     params.Confidence
 %     params.DistanceThreshold
+    % Find matching features (nearest neighbor symmetric)
     indexPairs = matchFeatures(seams{n}(1).SURFFeats, seams{n}(2).SURFFeats, 'MatchThreshold', params.MatchThreshold, 'Metric', 'SSD', 'MaxRatio', params.MaxRatio);
+    
+    % Get the points for the matched features
     putativePtsI = seams{n}(1).SURFPoints(indexPairs(:, 1));
     putativePtsJ = seams{n}(2).SURFPoints(indexPairs(:, 2));
-    fprintf('[seam %d] s%d t%d <-> s%d t%d: %d matches', n, seams{n}(1).sec, seams{n}(1).tile1, seams{n}(2).sec, seams{n}(2).tile1, size(putativePtsI, 1))
+    fprintf('[seam %d] s%d t%d e%d <-> s%d t%d e%d: %d matches', n, seams{n}(1).sec, seams{n}(1).tile, seams{n}(1).edge, seams{n}(2).sec, seams{n}(2).tile, seams{n}(2).edge, size(putativePtsI, 1))
+    
+    % Check if we have enough matches
+    if size(putativePtsI, 1) < 5
+        error(['Error: Not enough matches found between the following:\n' ...
+        '1. Section %d -> Tile %d -> Edge with tile %d\n' ...
+        '2. Section %d -> Tile %d -> Edge with tile %d\n'], ...
+        seams{n}(1).sec, seams{n}(1).tile, seams{n}(1).edge, seams{n}(2).sec, seams{n}(2).tile, seams{n}(2).edge)
+    end
+    
+    % Refine matches (inliers) using RANSAC
     [~, inliers] = estimateFundamentalMatrix(putativePtsI, putativePtsJ, 'Method', 'RANSAC', 'NumTrials', params.NumTrials, 'Confidence', params.Confidence, 'DistanceThreshold', params.DistanceThreshold);
+    
+    % Save inlier indices
     seams{n}(1).inliers = indexPairs(inliers, 1); seams{n}(2).inliers = indexPairs(inliers, 2);
     fprintf(', %d inliers\n', size(seams{n}(1).inliers, 1))
 end
+
+% Save the results of parallelized matching task back to sections structure
+for n = 1:length(seams)
+    % Get inlier points
+    pts1 = seams{n}(1).SURFPoints(seams{n}(1).inliers).Location;
+    pts2 = seams{n}(2).SURFPoints(seams{n}(2).inliers).Location;
+    
+    % Get indexing information
+    s1 = seams{n}(1).sec; i1 = seams{n}(1).tile; e1 = seams{n}(1).edge;
+    s2 = seams{n}(2).sec; i2 = seams{n}(2).tile; e2 = seams{n}(2).edge;
+    
+    % Adjust for seam offset (local coordinates)
+    pts1(:, 1) = pts1(:, 1) + sections(s1).tiles(i1).seams{e1}.startCol - 1;
+    pts1(:, 2) = pts1(:, 2) + sections(s1).tiles(i1).seams{e1}.startRow - 1;
+    sections(s1).tiles(i1).localPts{s2, e1} = pts1; % save to sections
+    pts2(:, 1) = pts2(:, 1) + sections(s2).tiles(i2).seams{e2}.startCol - 1;
+    pts2(:, 2) = pts2(:, 2) + sections(s2).tiles(i2).seams{e2}.startRow - 1;
+    sections(s2).tiles(i2).localPts{s1, e2} = pts2; % save to sections
+    
+    % Adjust for tile offset (global coordinates)
+    [gX1, gY1] = sections(s1).tiles(i1).R.intrinsicToWorld(pts1(:, 1), pts1(:, 2));
+    sections(s1).tiles(i1).pts{s2, e1} = [gX1 + 0.5, gY1 + 0.5];
+    [gX2, gY2] = sections(s2).tiles(i2).R.intrinsicToWorld(pts2(:, 1), pts2(:, 2));
+    sections(s2).tiles(i2).pts{s1, e2} = [gX2 + 0.5, gY2 + 0.5];
+end
+
 fprintf('Done matching features. [%.2fs]\n\n', toc(matchFeatsTime));
 
 %% ---- Calculate transforms
-sections = tikhonovStackOptimization(params, sections);
+%sections = tikhonovStackOptimization(params, sections);
 
 %showMatchedFeatures(imread(sections(1).path), imread(sections(2).path),
 %sections(1).matchedSURFPts{2}, sections(2).matchedSURFPts{1})
