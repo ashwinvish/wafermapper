@@ -53,5 +53,5 @@ end
 for i = 1:length(tiles)
     tiles(i).tform = affine2d(tiles(i).T);
 end
-logmsg(sprintf('Converged at iteration %d (total dist = %.3fpx, dist/pt = %.5fpx, delta = %.5f).\nDone. [%.2fs]\n\n', iteration, totalDist, avgPtDist, delta, toc(tformTime)));
+logmsg(sprintf('Converged at iteration %d (total dist = %.3fpx, dist/pt = %.5fpx, delta = %.5f).\nDone. [%fs]\n\n', iteration, totalDist, avgPtDist, delta, toc(tformTime)));
 end

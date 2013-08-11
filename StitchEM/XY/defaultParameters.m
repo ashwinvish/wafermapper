@@ -1,4 +1,16 @@
 function params = defaultParameters(tileFolder)
+
+% Feature matching
+params.MaxRatio = 0.6; % default = 0.6
+
+% Inlier detection (RANSAC)
+params.NumTrials = 500; % default = 500
+params.Confidence = 99.0; % default = 99
+params.DistanceThreshold = 0.01; % default = 0.01
+
+% Tikhonov
+params.weight = 1.0; % for intrasection fitting (XY)
+
 %% ---- File Processing (processFiles.m)
 
 % This is the folder that the tile images reside in. They must follow this
@@ -8,7 +20,8 @@ function params = defaultParameters(tileFolder)
 % Notes: - Do not include a trailing slash.
 %        - Both Unix and Windows paths are supported ('/' or '\').
 if nargin < 1
-    params.tileFolder = '/some/default/folder';
+    %params.tileFolder = '/home/talmo/EMdata/S2-W002_Sec101_Montage';
+    params.tileFolder = 'E:\Documents\Dropbox\MIT\SeungLab\Wafer007\2000px';
 else
     params.tileFolder = tileFolder;
 end

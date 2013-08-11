@@ -1,5 +1,6 @@
 %% ---- Parameters
-waferFolder = '/path/to/wafer/folder';
+%waferFolder = '/home/talmo/EMdata';
+waferFolder = 'E:\EMdata\2000px';
 
 % SURF Feature extraction
 params.MetricThreshold = 4500; % default = 1000
@@ -32,6 +33,7 @@ for n = 1:length(sectionFolders)
     files = {curDir(~[curDir.isdir]).name}';
     tileIndices = ~cellfun(@isempty, regexp(files, '^Tile_.*\.tif'));
     filenames = strcat(sectionFolders{n}, filesep, files(tileIndices));
+    renderedAlready = exist([sectionFolders{n} filesep sectionNames{n} '.tif'], 'file');
     if renderedAlready
         renderedSecs{end + 1} = n;
     else
@@ -69,8 +71,7 @@ for i = 1:length(sections)
     
     % Load image
     img = imread(sections(i).path);
-    %img = img(1:round(sections(i).height * 0.25),
-    %1:round(sections(i).width * 0.25));
+    %img = img(1:round(sections(i).height * 0.25), 1:round(sections(i).width * 0.25));
     
     % Get local points
     surfFeats = detectSURFFeatures(img, 'MetricThreshold', params.MetricThreshold, 'NumOctaves', params.NumOctaves, 'NumScaleLevels', params.NumScaleLevels);
@@ -115,8 +116,7 @@ fprintf('Done finding and matching features. [%.2fs]\n\n', toc(matchFeatsTime));
 %% ---- Calculate transforms
 sections = tikhonovOptimization(params, sections);
 
-%showMatchedFeatures(imread(sections(1).path), imread(sections(2).path),
-%sections(1).matchedSURFPts{2}, sections(2).matchedSURFPts{1})
+%showMatchedFeatures(imread(sections(1).path), imread(sections(2).path), sections(1).matchedSURFPts{2}, sections(2).matchedSURFPts{1})
 
 %% ---- Transform and render
 for i = 1:length(sections)

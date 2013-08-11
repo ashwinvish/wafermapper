@@ -28,7 +28,7 @@ for i = 1:length(tiles)
                      isempty(tiles(j).pts{i}))) && ...
                      (tiles(i).row == tiles(j).row || ...
                      tiles(i).col == tiles(j).col)
-                %logmsg(sprintf('Finding matches with %s tile... ', directions{n}));
+                fprintf('Finding matches with %s tile... ', directions{n});
                 
                 % Obtain matching points from SURF
                 tic; [ptsIJ, ptsJI] = surf2cp( ...
@@ -52,8 +52,8 @@ for i = 1:length(tiles)
                 % Accumulate number of points statistic
                 totalPts = totalPts + size(tiles(i).pts{j}, 1);
                 
-                %logmsg(sprintf('Found %d matching points. [%.2fs]\n', ...
-                %    size(tiles(i).pts{j}, 1), toc));
+                fprintf('Found %d matching points. [%.2fs]\n', ...
+                    size(tiles(i).pts{j}, 1), toc);
             end
         end
     end

@@ -48,7 +48,7 @@ points2 = detectSURFFeatures(img2, 'MetricThreshold', params.MetricThreshold, 'N
 [f2, vpts2] = extractFeatures(img2, points2, 'SURFSize', params.SURFSize);
 
 % Match feature pairs
-index_pairs = matchFeatures(f1, f2, 'MatchThreshold', params.MatchThreshold, 'Metric', 'SSD');
+index_pairs = matchFeatures(f1, f2, 'MatchThreshold', params.MatchThreshold, 'Metric', 'SSD', 'MaxRatio', 0.6);
 matched_pts1 = vpts1(index_pairs(:, 1));
 matched_pts2 = vpts2(index_pairs(:, 2));
 
