@@ -1,4 +1,4 @@
-function [f, df]=MAP(A,fI1,fI2,T1,T2,NA,sigma,Kx,Ky)
+function [f, df]=MAP(A,fI1,fI2,T1,T2,NA,sigma,Kx, Ky)
 %   MAP function to maximize with respect to aberration vector, A
 %   fI1,fI2: fft2 of the images
 %   T1, T2: known test aberrations
@@ -7,6 +7,7 @@ function [f, df]=MAP(A,fI1,fI2,T1,T2,NA,sigma,Kx,Ky)
 %   Kx,Ky: wave vector (meshgrid)
 
 gaussian =0; %gaussian prior flag
+hack=1;
 %% Initialize/calculate constants
 height=size(fI1,1);
 width=size(fI1,2);
@@ -39,6 +40,7 @@ if gaussian
     p_A=@(A)  (1/(2.5066*A_sigma))*exp(-A^2/(2*A_sigma^2)); % define gaussian prior
     df=df+A/A_sigma^2;
 end
-f=-log(p_A(A))+sum(sum( (abs(fI2.*MTF1 - fI1.*MTF2).^2) ./ (2*sigma^2*(MTF12+MTF22)+1e-20) )); %take sum log likelihoods
+f=(abs(fI2.*MTF1 - fI1.*MTF2).^2) ./ (2*sigma^2*(MTF12+MTF22)+1e-20);
+f=-log(p_A(A))+sum(sum(  )); %take sum log likelihoods
 
 end
