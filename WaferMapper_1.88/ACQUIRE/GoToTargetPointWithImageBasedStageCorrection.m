@@ -332,10 +332,10 @@ disp(' ');
 
 
 %%Log IBSC info
-if ~exist(GuiGlobalsStruct.CurrentLogBook)
+%if ~exist(GuiGlobalsStruct.CurrentLogBook)
     logBook = logBookCreate;
     logBook = logScopeConditions(logBook);
-end
+%end
 logBook = logIBSC(logBook,StageX_Microns_Offset,StageY_Microns_Offset, AngleOffsetOfNewInDegrees,...
     FigureOfMerit,XOffsetOfNewInPixels, YOffsetOfNewInPixels)
 

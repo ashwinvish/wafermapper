@@ -3,16 +3,13 @@ function[focusPosition] = smartTileFocus(StartingMagForAF, IsPerformAutoStig, St
 %% focus position is returned as XY
 %% Retrieve necessary info
 global GuiGlobalsStruct;
-
-
 sm = GuiGlobalsStruct.MyCZEMAPIClass; %To shorten calls to global API variables in this function
 targetFocus = GuiGlobalsStruct.MontageParameters.IsTargetFocus;
 WDResetThreshold = GuiGlobalsStruct.MontageParameters.WDResetThreshold;
 
-
 if ~exist('focOptions','var')
-   focOptions.IsDoQualCheck = 0;
-   focOptions.QualityThreshold = 0;
+    focOptions.IsDoQualCheck = 0;
+    focOptions.QualityThreshold = 0;
 end
 
 ImageHeightInPixels = 100;
@@ -81,46 +78,46 @@ end
 
 %%find signal
 if targetFocus
-
-horiz = abs(I(:,1:end-1) - I(:,2:end));
-vert = abs(I(1:end-1,:) - I(2:end,:));
-difI = I;
-difI(1:end-1,:) = difI(1:end-1,:)+vert;
-difI(:,1:end-1) = difI(:,1:end-1)+horiz;
-
-difI(difI>250) = 0;
-
-focKern = ones(3,5);
-focKern = focKern/sum(focKern(:));
-fI= conv2(double(difI),focKern,'same');
-
-[domeY domeX] = ind2sub(size(fI),1:(size(fI,1)*size(fI,2)));
-domeDist = sqrt((domeY-mean(domeY)).^2 + (domeX-mean(domeX)).^2);
-dome = fI *0; 
-dome(:) = domeDist.^1.5;
-dome = dome * max(fI(:))/max(dome(:)); 
-fIdomed = fI-dome;
-
-%image(fI),pause(.01)
-
-[y x] = find(fIdomed == max(fIdomed(:)),1);
-
-yshift = y - ImageHeightInPixels/2;
-xshift = x - ImageHeightInPixels/2;
-
-%% move stage to signal position
-pause(.01)
-
-GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_Mag',150);
-GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('DP_EXT_SCAN_CONTROL',0);
-focusPosition = [stage_x - xshift * s stage_y + yshift * s];
-sm.MoveStage(focusPosition(1),focusPosition(2),stage_z,stage_t,stage_r,stage_m);
-while(strcmp(GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeString('DP_STAGE_IS'),'Busy'))
+    
+    horiz = abs(I(:,1:end-1) - I(:,2:end));
+    vert = abs(I(1:end-1,:) - I(2:end,:));
+    difI = I;
+    difI(1:end-1,:) = difI(1:end-1,:)+vert;
+    difI(:,1:end-1) = difI(:,1:end-1)+horiz;
+    
+    difI(difI>250) = 0;
+    
+    focKern = ones(3,5);
+    focKern = focKern/sum(focKern(:));
+    fI= conv2(double(difI),focKern,'same');
+    
+    [domeY domeX] = ind2sub(size(fI),1:(size(fI,1)*size(fI,2)));
+    domeDist = sqrt((domeY-mean(domeY)).^2 + (domeX-mean(domeX)).^2);
+    dome = fI *0;
+    dome(:) = domeDist.^1.5;
+    dome = dome * max(fI(:))/max(dome(:));
+    fIdomed = fI-dome;
+    
+    %image(fI),pause(.01)
+    
+    [y x] = find(fIdomed == max(fIdomed(:)),1);
+    
+    yshift = y - ImageHeightInPixels/2;
+    xshift = x - ImageHeightInPixels/2;
+    
+    %% move stage to signal position
     pause(.01)
-end
-
-wmBackLash
-pause(1)
+    
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_Mag',150);
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('DP_EXT_SCAN_CONTROL',0);
+    focusPosition = [stage_x - xshift * s stage_y + yshift * s];
+    sm.MoveStage(focusPosition(1),focusPosition(2),stage_z,stage_t,stage_r,stage_m);
+    while(strcmp(GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeString('DP_STAGE_IS'),'Busy'))
+        pause(.01)
+    end
+    
+    wmBackLash
+    pause(1)
 end
 %% Start Autofocus
 
@@ -179,19 +176,19 @@ if IsPerformAutoStig
         sm.Set_PassedTypeSingle('AP_Mag',StartingMagForAS / repeatStig);
         
         AutoWorkingDistance =sm.Get_ReturnTypeSingle('AP_WD');
-    if (abs(AutoWorkingDistance - CurrentWorkingDistance) > WDResetThreshold)
-        %If the WD has gone far enough from CurrentWorkingDistance
-        %(=AFStartingWD),reset it to CurrentWorkingDistance (i.e.
-        %AFStartingWD, which is the WD used at the beginning of this
-        %calculation)
-        sm.Set_PassedTypeSingle('AP_WD', CurrentWorkingDistance);
-        
-        %Reset stig values with uesr-specified StartingStigX and
-        %StartingStigY
-        sm.Set_PassedTypeSingle('AP_STIG_X',startStigX);
-        sm.Set_PassedTypeSingle('AP_STIG_Y',startStigY);
-        pause(.1)
-    end
+        if (abs(AutoWorkingDistance - CurrentWorkingDistance) > WDResetThreshold)
+            %If the WD has gone far enough from CurrentWorkingDistance
+            %(=AFStartingWD),reset it to CurrentWorkingDistance (i.e.
+            %AFStartingWD, which is the WD used at the beginning of this
+            %calculation)
+            sm.Set_PassedTypeSingle('AP_WD', CurrentWorkingDistance);
+            
+            %Reset stig values with uesr-specified StartingStigX and
+            %StartingStigY
+            sm.Set_PassedTypeSingle('AP_STIG_X',startStigX);
+            sm.Set_PassedTypeSingle('AP_STIG_Y',startStigY);
+            pause(.1)
+        end
         %Temporary hard code settings
         sm.Set_PassedTypeSingle('AP_Mag',5000 / repeatStig);
         sm.Set_PassedTypeSingle('DP_AutoFunction_ScanRate',AFscanRate);
@@ -232,23 +229,23 @@ if IsPerformAutoStig
     
     %%%%
     IsNeedToReleaseFromFibics = 1;
-% if IsNeedToReleaseFromFibics
-%     %*** START: This sequence is designed to release the SEM from Fibics control
-%     sm.Execute('CMD_AUTO_FOCUS_FINE');
-%     pause(0.5);
-%     sm.Execute('CMD_ABORT_AUTO');
-%     while ~strcmp('Idle',sm.Get_ReturnTypeString('DP_AUTO_FUNCTION'))
-%         pause(0.02);
-%     end
-%     sm.Set_PassedTypeSingle('AP_WD',CurrentWorkingDistance);
-% 
-%     pause(0.1);
-%     %*** END
-% end
-%%%%
-
+    % if IsNeedToReleaseFromFibics
+    %     %*** START: This sequence is designed to release the SEM from Fibics control
+    %     sm.Execute('CMD_AUTO_FOCUS_FINE');
+    %     pause(0.5);
+    %     sm.Execute('CMD_ABORT_AUTO');
+    %     while ~strcmp('Idle',sm.Get_ReturnTypeString('DP_AUTO_FUNCTION'))
+    %         pause(0.02);
+    %     end
+    %     sm.Set_PassedTypeSingle('AP_WD',CurrentWorkingDistance);
+    %
+    %     pause(0.1);
+    %     %*** END
+    % end
+    %%%%
+    
     sm.Set_PassedTypeSingle('AP_Mag',StartingMagForAF);
-    pause(0.1);    
+    pause(0.1);
     sm.Set_PassedTypeSingle('DP_AutoFunction_ScanRate',AFscanRate);
     sm.Set_PassedTypeSingle('DP_IMAGE_STORE',AFImageStore);
     
@@ -274,18 +271,18 @@ if IsPerformAutoStig
     
     AutoWorkingDistance = sm.Get_ReturnTypeSingle('AP_WD');
     if (abs(AutoWorkingDistance - CurrentWorkingDistance) > WDResetThreshold)
-       
+        
         
         %Reset to initial WD for calculation, CurrentWorkingDistance
         %(=AFStartingWD)
-       %%%%Need to fix in Montage GUI
-        sm.Set_PassedTypeSingle('AP_WD', GuiGlobalsStruct.CurrentWorkingDistance );
-       %%%% 
+        %%%%Need to fix in Montage GUI
+        sm.Set_PassedTypeSingle('AP_WD', CurrentWorkingDistance );
+        %%%%
         
         %%%% temporary until Montage GUI is working
-         CurrentWorkingDistance =AFStartingWD;
-          sm.Set_PassedTypeSingle('AP_WD', CurrentWorkingDistance );
-         %%%% 
+        CurrentWorkingDistance = GuiGlobalsStruct.MontageParameters.AFStartingWD;
+        sm.Set_PassedTypeSingle('AP_WD', CurrentWorkingDistance );
+        %%%%
         %Reset to initial stig values
         sm.Set_PassedTypeSingle('AP_STIG_X',startStigX);
         sm.Set_PassedTypeSingle('AP_STIG_Y',startStigY);
@@ -296,12 +293,12 @@ end %end Autofocus AutoStig autofocus
 
 %% Return to original settings
 if targetFocus
-sm.Set_PassedTypeSingle('AP_SCANROTATION',startScanRot);
-sm.MoveStage(stage_x ,stage_y ,stage_z,stage_t,stage_r,stage_m);
-while(strcmp(GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeString('DP_STAGE_IS'),'Busy'))
-    pause(.01)
-end
-wmBackLash
+    sm.Set_PassedTypeSingle('AP_SCANROTATION',startScanRot);
+    sm.MoveStage(stage_x ,stage_y ,stage_z,stage_t,stage_r,stage_m);
+    while(strcmp(GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeString('DP_STAGE_IS'),'Busy'))
+        pause(.01)
+    end
+    wmBackLash
 end
 
 %% Refocus
@@ -320,14 +317,14 @@ if focOptions.IsDoQualCheck
     
     for o = 1:2
         [q] = takeFocusImage(focOptions);
-         fprintf('Quality check registered %0.5g.\n',q.quality);
+        fprintf('Quality check registered %0.5g.\n',q.quality);
         %LogFile_WriteLine(sprintf('Quality check registered %0.5g.',q.quality));
         
-     
+        
         
         if q.quality <= focOptions.QualityThreshold %if bad
             disp('Image failed quality check')
-           % LogFile_WriteLine(sprintf('!!!!! Autofocus failed to reach threshold %0.5g.',focOptions.QualityThreshold));
+            % LogFile_WriteLine(sprintf('!!!!! Autofocus failed to reach threshold %0.5g.',focOptions.QualityThreshold));
             
             %%Move over
             
@@ -339,7 +336,7 @@ if focOptions.IsDoQualCheck
             
             % Reset WD to initial value again
             GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD', CurrentWorkingDistance);
-
+            
             GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',startStigX);
             GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',startStigY);
             pause(.5)

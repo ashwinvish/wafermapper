@@ -247,7 +247,7 @@ else %~IsBypassAndCreatFauxMap This is the regular code
             while(strcmp(GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeString('DP_STAGE_IS'),'Busy'))
                 pause(.02)
             end
-            wmBacklash
+            wmBackLash
             disp(sprintf('Stage Move Duration = %0.7g seconds',toc(StartTimeOfStageMove)));
             
             StartTimeOfImageAcquire = tic;
@@ -305,7 +305,7 @@ else %~IsBypassAndCreatFauxMap This is the regular code
     FullMapDataFileNameStr = sprintf('%s\\FullMapData.mat',GuiGlobalsStruct.FullWaferTileImagesDirectory);
     MyStr = sprintf('Saving FullMapData.mat file: %s',FullMapDataFileNameStr);
     disp(MyStr);
-    safesave(FullMapDataFileNameStr,'FullMapData');
+    safeSave(FullMapDataFileNameStr,'FullMapData');
     
     %Reload the FullMapImage.tif and assign to global variable
     FullWaferImageFileNameStr = sprintf('%s\\FullMapImage.tif',GuiGlobalsStruct.FullWaferTileImagesDirectory);
