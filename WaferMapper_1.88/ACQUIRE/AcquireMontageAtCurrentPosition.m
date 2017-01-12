@@ -11,7 +11,7 @@ bookName = GuiGlobalsStruct.CurrentLogBook ;
 %%Determine if manual retake is required
 doManualRetake = (sum(GuiGlobalsStruct.waferProgress.manualRetakeList == str2num(LabelStr)));
 
-%
+% 
 % if exist([GuiGlobalsStruct.TempImagesDirectory '\watchQ.mat'])
 %     load([GuiGlobalsStruct.TempImagesDirectory '\watchQ.mat'], 'q')
 % else
@@ -105,7 +105,7 @@ for t = 1:size(allTiles,1)
     end
     
     
-    ImageFileNameStr = sprintf('%s\\Tile_r%d-c%d_%s_sec%s.tif', MontageDirName, RowIndex, ColIndex, WaferName, zeroBuf(LabelStr));
+    ImageFileNameStr = sprintf('%s\\Tile_r%d-c%d_%s_sec%s.tif', MontageDirName, RowIndex, ColIndex, WaferName, zerobuf(LabelStr));
     listTileNames{t} = ImageFileNameStr;  %record list of file names
     
     listTakeImage(t) = (~exist(ImageFileNameStr, 'file') | doManualRetake) & ~IsDropOut;
@@ -201,7 +201,7 @@ lastFocusPoint = [StageX_Meters StageY_Meters];
 if GuiGlobalsStruct.MontageParameters.IsSingle_AF_ForWholeMontage
     %Reset initial WD using AFStartingWDd from Montage Parameters
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
-    
+      
     
     
     pause(1);
@@ -223,6 +223,11 @@ if GuiGlobalsStruct.MontageParameters.IsSingle_AFASAF_ForWholeMontage
     
     %Reset initial WD using AFStartingWDd from Montage Parameters
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+   
+   
+    
+    
+    
     BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
     BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
@@ -236,6 +241,40 @@ if GuiGlobalsStruct.MontageParameters.IsSingle_AFASAF_ForWholeMontage
     focOptions.IsDoQualCheck = GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
     focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
     smartTileFocus(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+    GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
+        GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STIG_X'); %record this new value
+    GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
+        GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STIG_Y');
+    
+    lastFocusPoint = [GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_X') ...
+        GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_Y')];
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Added by Elias Wang 8/8/16-AFASAF once for montage (using MAPFoSt for AF)
+if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt
+    %reset original WD + Stig
+    
+    %Reset initial WD using AFStartingWDd from Montage Parameters
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+   
+   
+    
+    
+    
+    BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
+    BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);
+    pause(1);
+    
+    %PerformAutoFocusStigFocus;
+    StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
+    IsPerformAutoStig = true;
+    StartingMagForAS = round(StartingMagForAF); %previously stiged at half resolution
+    focOptions.IsDoQualCheck = GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
+    focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
+    smartTileFocusMAPFoSt(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
     GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
         GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STIG_X'); %record this new value
     GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
@@ -271,8 +310,8 @@ if GuiGlobalsStruct.MontageParameters.IsXFit
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
     BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
     BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
-    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
-    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);  
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);  
     pause(1);
     RowDistanceBetweenTileCentersInMicrons_ForGridAutoFocus = GuiGlobalsStruct.MontageParameters.RowDistBetweenAFPointsMicrons; %50; %150;
     ColDistanceBetweenTileCentersInMicrons_ForGridAutoFocus = GuiGlobalsStruct.MontageParameters.ColDistBetweenAFPointsMicrons; %50; %150;
@@ -299,8 +338,8 @@ if GuiGlobalsStruct.MontageParameters.Is4square
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
     BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
     BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
-    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
-    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);  
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);  
     [groupTiles focusPoints] = Focus_4square(listStageX_Meters,listStageY_Meters,allTiles,listTakeImage);  %return tiles belonging to a focus group and the location of their focus point in n by yx
     
     showDist = sqrt((focusPoints(1,1)-focusPoints(end,1)).^2 + (focusPoints(1,2)-focusPoints(end,2).^2))*1000;
@@ -327,26 +366,26 @@ StartingPoint_StigY = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_S
 % % end
 % Force the Auto Brightness and Contrast to not happen for now
 GuiGlobalsStruct.MontageParameters.IsAutoBrightnessContrast = 0;
-if GuiGlobalsStruct.MontageParameters.IsAutoBrightnessContrast
+if GuiGlobalsStruct.MontageParameters.IsAutoBrightnessContrast    
     
-    %Reset original WD
-    focBeforeAutoBC = 1;
-    if focBeforeAutoBC
-        GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
-        pause(.1);
-        %PerformAutoFocus;
-        StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
-        IsPerformAutoStig = false;
-        StartingMagForAS = round(StartingMagForAF/2);
-        focOptions.IsDoQualCheck = 0;%GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
-        focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
-        smartTileFocus(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
-        lastFocusPoint = [GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_X') ...
-            GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_Y')];
-    end
-    
-    disp('Checking Brightness Contrast')
-    autoBrightCon
+     %Reset original WD
+     focBeforeAutoBC = 1;
+     if focBeforeAutoBC
+         GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+         pause(.1);
+         %PerformAutoFocus;
+         StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
+         IsPerformAutoStig = false;
+         StartingMagForAS = round(StartingMagForAF/2);
+         focOptions.IsDoQualCheck = 0;%GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
+         focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
+         smartTileFocus(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);         
+         lastFocusPoint = [GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_X') ...
+             GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_Y')];
+     end
+     
+     disp('Checking Brightness Contrast')
+     autoBrightCon
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -398,7 +437,7 @@ for tileGroup = 1:    length(groupTiles)
     tileList = groupTiles{tileGroup}; %Generic tile list
     tileList = nearestSpiral(tileList,0,listStageX_Meters,listStageY_Meters,lastFocusPoint);
     disp(['Tile list = ' sprintf('%d ',tileList)])
-    
+
     
     if GuiGlobalsStruct.MontageParameters.Is4square & ~isempty(tileList) % do four square focus
         disp(sprintf('Going to focus point for focus group %d',tileGroup))
@@ -448,7 +487,7 @@ for tileGroup = 1:    length(groupTiles)
         tileCount = tileCount+1;
         
         ImageFileNameStr = listTileNames{tL};
-        maxRetakeNum = 30;
+        maxRetakeNum = 30; 
         if numRetakes>maxRetakeNum
             numTileAttempts = 1;
         end
@@ -459,10 +498,10 @@ for tileGroup = 1:    length(groupTiles)
             end
             
             disp(sprintf('%s attempt number %d',ImageFileNameStr,tileAttempt))
-            %             if  exist(ImageFileNameStr, 'file') %rename old tif to be retaken
-            %                 NewFileName = [ImageFileNameStr(1:end-3) '_beforeManRetake.tif'];
-            %                 movefile(ImageFileNameStr,NewFileName);
-            %             end
+%             if  exist(ImageFileNameStr, 'file') %rename old tif to be retaken
+%                 NewFileName = [ImageFileNameStr(1:end-3) '_beforeManRetake.tif'];
+%                 movefile(ImageFileNameStr,NewFileName);
+%             end
             
             %move to tile and record current
             GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('DP_EXT_SCAN_CONTROL',0);
@@ -482,7 +521,7 @@ for tileGroup = 1:    length(groupTiles)
             actual_stage_y = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_Y');
             xDif = abs(actual_stage_x - listStageX_Meters(tL));
             yDif = abs(actual_stage_y - listStageY_Meters(tL));
-            
+
             if max([xDif yDif])>missedThresh
                 
                 missed.actual_stage_x = actual_stage_x;
@@ -521,12 +560,25 @@ for tileGroup = 1:    length(groupTiles)
                     smartTileFocus(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
                 end
                 
+                %Added by Elias Wang (8/5/16) for MAPFoSt AF on every tile
+                if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt 
+                    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
+                    pause(1); %1
+                    %Perform MAPFoSt AutoFocus;
+                    StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
+                    IsPerformAutoStig = false;
+                    StartingMagForAS = round(StartingMagForAF/2);
+                    focOptions.IsDoQualCheck = GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
+                    focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
+                    smartTileFocusMAPFoSt(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+                end %---End
+                
                 if GuiGlobalsStruct.MontageParameters.IsAFASAFOnEveryTile
                     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
                     BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
                     BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
-                    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
-                    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);
+                    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);  
+                    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);  
                     pause(1); %1
                     %PerformAutoFocusStigFocus;
                     StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
@@ -562,15 +614,19 @@ for tileGroup = 1:    length(groupTiles)
                 GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
                 BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
                 BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
-                GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
-                GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);
+                GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);  
+                GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',BestGuess_StigY);  
                 pause(1); %1
                 %PerformAutoFocusStigFocus;
                 StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
                 StartingMagForAS = round(StartingMagForAF/2);
                 focOptions.IsDoQualCheck = GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
                 focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
-                smartTileFocus(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+                if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt % Added by Elias Wang
+                    smartTileFocusMAPFoSt(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+                else
+                    smartTileFocus(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+                end
                 GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
                     GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STIG_X'); %record this new value
                 GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
@@ -582,15 +638,6 @@ for tileGroup = 1:    length(groupTiles)
             end
             
             %% ACQUIRE IMAGE
-            
-            ImageWidthInPixels = GuiGlobalsStruct.MontageParameters.TileWidth_pixels;
-            ImageHeightInPixels = GuiGlobalsStruct.MontageParameters.TileWidth_pixels;
-            DwellTimeInMicroseconds = GuiGlobalsStruct.MontageParameters.TileDwellTime_microseconds;
-            FOV_microns = GuiGlobalsStruct.MontageParameters.TileFOV_microns;%xgst
-            IsDoAutoRetakeIfNeeded = false;
-            IsMagOverride = false;
-            MagForOverride = -1;
-            WaferNameStr = WaferName;
             
             logBook = logImageInfo(logBook,ImageFileNameStr);
             logBook = logImageConditions(logBook,ImageFileNameStr);
@@ -684,7 +731,7 @@ for tileGroup = 1:    length(groupTiles)
                 StageStitched_TextStringsArray(RowIndex, ColIndex).textY = StartR+(MaxSSTileR/2);
                 %StageStitched_TextStringsArray(RowIndex, ColIndex).Text = sprintf('(%d, %d)',RowIndex, ColIndex);
                 StageStitched_TextStringsArray(RowIndex, ColIndex).title = LabelStr;
-                
+
                 tic
                 UpdateTextOnStageStitched(NumRowTiles, NumColTiles, StitchFigNum, StageStitched_TextStringsArray);
                 tic
@@ -710,7 +757,7 @@ for tileGroup = 1:    length(groupTiles)
     
 end
 %Save log file
-safeSave([GuiGlobalsStruct.TempImagesDirectory '\logBooks\' bookName '.mat'],'logBook')
+safesave([GuiGlobalsStruct.TempImagesDirectory '\logBooks\' bookName '.mat'],'logBook')
 
 %do update of ss display
 figure(StitchFigNum);
@@ -731,7 +778,7 @@ saveas(StitchFigNum,StageStitchedImageWithQualValsFileNameStr,'tif');
 %end
 
 
-safeSave([GuiGlobalsStruct.TempImagesDirectory '\logBooks\' bookName '.mat'],'logBook')
+safesave([GuiGlobalsStruct.TempImagesDirectory '\logBooks\' bookName '.mat'],'logBook')
 'log after tile'
 
 %% Check Current

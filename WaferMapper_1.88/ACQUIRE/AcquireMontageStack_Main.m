@@ -56,8 +56,7 @@ MyStr = sprintf('Loaded wafer = %s.', WaferName);
 IsDoingRetakes = true; %just assume we are always doing retakes
 
 
-[dirname] = GetMyDir;
-%uigetdir(GuiGlobalsStruct.WaferDirectory, 'Choose or create a directory to store images in...');
+[dirname] = GetMyDir;%uigetdir(GuiGlobalsStruct.WaferDirectory, 'Choose or create a directory to store images in...');
 
 dirname = dirname(1:end-1);
 if dirname == 0
