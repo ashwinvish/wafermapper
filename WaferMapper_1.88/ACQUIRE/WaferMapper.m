@@ -92,19 +92,19 @@ GuiGlobalsStruct.h_StatusBar_EditBox = handles.StatusBar_EditBox;
 
 ButtonName = questdlg('About to init Zeiss and FIBICS APIs. Press cancel to skip.','title','OK','Cancel','OK');
 if strcmp(ButtonName,'OK')
-    
+
     h_msgbox = msgbox('Initializing Zeiss API Interface...','modal');
-    
+
     IsOK = false;
     memory
     %% protect chunk of contiguous memory from actxserver
     mem = memory
     resMem = mem.MaxPossibleArrayBytes* .95;
-    spacer = zeros(resMem,1,'uint8');
-    
+    spacer = zeros(int32(resMem),1,'uint8');
+
     memory
     try
-        
+
         MyCZEMAPIClass = actxserver('VBComObjectWrapperForZeissAPI.KHZeissSEMWrapperComClass');
         IsOK = true;
     catch MyException
@@ -112,14 +112,14 @@ if strcmp(ButtonName,'OK')
             close(h_msgbox);
         end
         uiwait(msgbox('Problem initializing Zeiss API. Some program functionality will be unavailable.'));
-        set(handles.InitializeZeissSEMControl_MenuItem,'Checked','off');     
+        set(handles.InitializeZeissSEMControl_MenuItem,'Checked','off');
     end
     'actxserver'
     memory
     GuiGlobalsStruct.MyCZEMAPIClass= MyCZEMAPIClass;
     'MyCZ'
     memory
-    
+
     if IsOK
         'IsOK'
         pause(15)
@@ -135,7 +135,7 @@ if strcmp(ButtonName,'OK')
             'mystr'
             memory
             StatusBarMessage(MyStr);
-            
+
             GuiGlobalsStruct.IsZeissAPIInitialized = true;
             set(handles.InitializeZeissSEMControl_MenuItem,'Checked','on');
             if ishandle(h_msgbox)
@@ -154,9 +154,9 @@ if strcmp(ButtonName,'OK')
             set(handles.InitializeZeissSEMControl_MenuItem,'Checked','off');
         end
     end
-    
-    
-    
+
+
+
     if GuiGlobalsStruct.IsZeissAPIInitialized
         %uiwait(msgbox('About to initialize FIBICS API. MAKE SURE ATLAS SOFTWARE IS CLOSED. Press OK when ready...'));
         h_msgbox = msgbox('Programatically setting Zeiss SEM to 300x before init of FIBICS. This is necessary to maintain consistency of FOV calcs. between FIBICS sessions','modal');
@@ -171,18 +171,18 @@ if strcmp(ButtonName,'OK')
         if ishandle(h_msgbox)
             close(h_msgbox);
         end
-        
+
         if GuiGlobalsStruct.MyCZEMAPIClass.GetMag() == StartMag
             GuiGlobalsStruct.MyCZEMAPIClass.Fibics_Initialise();
-            
+
             for i=1:15
                 MyStr = sprintf(' Fibics Initializing, pausing 15 seconds... %d', i);
                 h_msgbox = msgbox(MyStr);
                 pause(1);
                 close(h_msgbox);
             end
-            
-            
+
+
             MyStr = sprintf('Fibics API successfully initialized.');
             StatusBarMessage(MyStr);
             GuiGlobalsStruct.IsFibicsAPIInitialized = true;
@@ -197,7 +197,7 @@ if strcmp(ButtonName,'OK')
             uiwait(msgbox('Problem setting Zeiss SEM mag.'));
             GuiGlobalsStruct.IsFibicsAPIInitialized = false;
             set(handles.InitializeFibicsControl_MenuItem,'Checked','off');
-            
+
         end
     end
         clear spacer %to recover reserved memory
@@ -208,8 +208,8 @@ StatusBarMessage('Completed opening.');
 %NOTE: These are the fields in the global struct at the end of the opening
 %function:
 %
-% %GuiGlobalsStruct = 
-% 
+% %GuiGlobalsStruct =
+%
 %       handles_FromWaferMapper: [1x1 struct]
 %     HandleToWaferMapperFigure: 173.0210
 %         IsZeissAPIInitialized: 1
@@ -263,7 +263,7 @@ set(handles.StageCorrectionStatus_EditBox, 'String', MyStr);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = WaferMapper_OutputFcn(hObject, eventdata, handles) 
+function varargout = WaferMapper_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -314,8 +314,8 @@ else
         GuiGlobalsStruct.MyCZEMAPIClass = Temp_MyCZEMAPIClass;
     end
     %%% END: Clear all variables except those that should have been filled before
-    
-    
+
+
     %Make sure the following file 'UTSLDefaults.mat' exists in this
     %directory. This is mainly to prevent users from putting a wafer in a
     %non UTSL directory.
@@ -332,11 +332,11 @@ else
             save(UTSLDefaultsFileNameStr, 'DummyVariable');
         end
     end
-    
+
     %If we got here then we have a new or existing Master directory
-    
-    
-    
+
+
+
     GuiGlobalsStruct.MasterUTSLDirectory = dirname;
     GuiGlobalsStruct.IsLegalMasterUTSLDir = true;
     MyStr = ['WaferMapper - ' GuiGlobalsStruct.MasterUTSLDirectory];
@@ -344,9 +344,9 @@ else
     MasterDisableAndUncheckGuiItems(handles);
     set(handles.NewUTSL_MenuItem,'Enable','on');
     set(handles.OpenUTSL_MenuItem,'Enable','on');
-    
+
     StatusBarMessage(MyStr);
-    
+
     %NOTE: These are the fields in the global struct at the end of the function:
     % GuiGlobalsStruct =
     %
@@ -358,7 +358,7 @@ else
     %                MyCZEMAPIClass: [1x1 COM.VBComObjectWrapperForZeissAPI_KHZeissSEMWrapperComClass]
     %           MasterUTSLDirectory: 'Z:\Hayworth\MasterUTSLDirectory'
     %          IsLegalMasterUTSLDir: 1
-    
+
 end
 
 
@@ -408,7 +408,7 @@ else
     Temp_HandleToWaferMapperFigure = GuiGlobalsStruct.HandleToWaferMapperFigure;
     Temp_IsZeissAPIInitialized = GuiGlobalsStruct.IsZeissAPIInitialized;
     Temp_IsFibicsAPIInitialized = GuiGlobalsStruct.IsFibicsAPIInitialized;
-    Temp_h_StatusBar_EditBox = GuiGlobalsStruct.h_StatusBar_EditBox; 
+    Temp_h_StatusBar_EditBox = GuiGlobalsStruct.h_StatusBar_EditBox;
     if isfield(GuiGlobalsStruct, 'MyCZEMAPIClass') %This is to handle case if we are running without microscope
         Temp_MyCZEMAPIClass = GuiGlobalsStruct.MyCZEMAPIClass;
         IsField_MyCZEMAPIClass = true;
@@ -431,17 +431,17 @@ else
     GuiGlobalsStruct.IsLegalMasterUTSLDir = Temp_IsLegalMasterUTSLDir;
     %%% END: Clear all variables except those that should have been filled before
     GuiGlobalsStruct.ListOfWaferNames = [];
-    
+
     NewNameStr = InputDlgAnswer{1};
     NewDirPath = [GuiGlobalsStruct.MasterUTSLDirectory filesep NewNameStr];
-    
+
     if ~exist(NewDirPath,'dir')
         [success,message,messageid] = mkdir(NewDirPath);
         if success == 1
             GuiGlobalsStruct.UTSLDirectory = NewDirPath;
             MyStr = ['WaferMapper - ' GuiGlobalsStruct.UTSLDirectory];
             set(GuiGlobalsStruct.HandleToWaferMapperFigure,'name',MyStr);
-            
+
             StatusBarMessage(MyStr);
             %Enable menu items for next step
             MasterDisableAndUncheckGuiItems(handles);
@@ -453,14 +453,14 @@ else
             uiwait(msgbox(message));
             MasterDisableAndUncheckGuiItems(handles)
         end
-        
+
     else
         MyStr = sprintf('Directory (%s) already exists. Use choose instead.',NewDirPath);
         uiwait(msgbox(MyStr));
         MasterDisableAndUncheckGuiItems(handles);
         return;
     end
-    
+
     %NOTE: These are the fields in the global struct at the end of the function:
     %     GuiGlobalsStruct =
     %
@@ -473,7 +473,7 @@ else
     %           MasterUTSLDirectory: 'Z:\Hayworth\MasterUTSLDirectory'
     %          IsLegalMasterUTSLDir: 1
     %                 UTSLDirectory: 'Z:\Hayworth\MasterUTSLDirectory\TestUTSL_9283'
-    
+
 end
 
 
@@ -528,7 +528,7 @@ else
             n = n + 1;
         end
     end
-    
+
     if length(ListOfDirNames) > 0
         [SelectionNumber,isok] = listdlg('PromptString','Select a UTSL dir:',...
             'SelectionMode','single',...
@@ -537,7 +537,7 @@ else
             GuiGlobalsStruct.UTSLDirectory = [GuiGlobalsStruct.MasterUTSLDirectory filesep ListOfDirNames{SelectionNumber}];
             MyStr = sprintf('WaferMapper - %s', GuiGlobalsStruct.UTSLDirectory);
             set(GuiGlobalsStruct.HandleToWaferMapperFigure,'name',MyStr);
-            
+
             StatusBarMessage(MyStr);
             %Enable menu items for next step
             MasterDisableAndUncheckGuiItems(handles);
@@ -545,15 +545,15 @@ else
             set(handles.OpenUTSL_MenuItem,'Enable','on');
             set(handles.NewWafer_MenuItem,'Enable','on');
             set(handles.OpenWafer_MenuItem,'Enable','on');
-            
+
             %Populate the popup menu for wafers in the section overview display
             WaferDirListArray = dir(GuiGlobalsStruct.UTSLDirectory);
             WaferDirListArray = WaferDirListArray(3:end);
-            
-            
+
+
             ListOfWaferNames = [];
             for i=1:length(WaferDirListArray)
-                if (WaferDirListArray(i).isdir == 1) 
+                if (WaferDirListArray(i).isdir == 1)
                     nam = lower(WaferDirListArray(i).name);
                     if strcmp(nam(1),'w')
                         ListOfWaferNames{length(ListOfWaferNames)+1} = WaferDirListArray(i).name;
@@ -562,7 +562,7 @@ else
             end
             GuiGlobalsStruct.ListOfWaferNames = ListOfWaferNames;
             set(handles.WaferForSectionOverviewDisplay_PopupMenu,'String', GuiGlobalsStruct.ListOfWaferNames);
-            
+
         end
     else
         uiwait(msgbox('No UTSLs found.'));
@@ -572,7 +572,7 @@ else
         set(handles.OpenWafer_MenuItem,'Enable','off');
         return;
     end
-    
+
 end
 
 
@@ -636,16 +636,16 @@ else
     set(handles.OpenUTSL_MenuItem,'Enable','on');
     set(handles.NewWafer_MenuItem,'Enable','on');
     set(handles.OpenWafer_MenuItem,'Enable','on');
-    
+
     InitParameters(handles);
 
     ListOfDirNames =  GuiGlobalsStruct.ListOfWaferNames ;
-    
+
     if length(ListOfDirNames) > 0
         [SelectionNumber,isok] = listdlg('PromptString','Select a wafer dir:',...
             'SelectionMode','single',...
             'ListString',ListOfDirNames);
-        
+
         if isok == 1
             GuiGlobalsStruct.WaferDirectory = [GuiGlobalsStruct.UTSLDirectory filesep ListOfDirNames{SelectionNumber}];
             MyStr = sprintf('WaferMapper - %s', GuiGlobalsStruct.WaferDirectory);
@@ -660,13 +660,13 @@ else
             WaferListCellArray = get(handles.WaferForSectionOverviewDisplay_PopupMenu,'String');
             for ii = 1:length(WaferListCellArray)
                 if strcmp(ListOfDirNames{SelectionNumber}, WaferListCellArray{ii})
-                   set(handles.WaferForSectionOverviewDisplay_PopupMenu,'Value',ii); 
+                   set(handles.WaferForSectionOverviewDisplay_PopupMenu,'Value',ii);
                 end
             end
-            
-            
-            
-            
+
+
+
+
         else
             return;
         end
@@ -674,11 +674,11 @@ else
         uiwait(msgbox('No Wafers found.'));
         return;
     end
-    
-    
+
+
     %Define the global variable names of all relevant directories at this
     %point (note some of these directories will be created when needed)
-    
+
     %Directories completed after wafer is fully mapped:
     GuiGlobalsStruct.OpticalWaferImageDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'OpticalWaferImageDirectory'];
     GuiGlobalsStruct.FullWaferTileImagesDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'FullWaferTileImages'];
@@ -687,35 +687,35 @@ else
     GuiGlobalsStruct.ExampleSectionImageDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'ExampleSectionImageDirectory'];
     GuiGlobalsStruct.PixelToStageCalibrationDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'PixelToStageCalibrationDirectory'];
     GuiGlobalsStruct.SectionOverviewsDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'SectionOverviewsDirectory'];
-    
-    
+
+
     %Directories completed after (possibly offline) processing to align overview sections is compelted:
     GuiGlobalsStruct.SectionOverviewTemplateDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'SectionOverviewTemplateDirectory'];
     GuiGlobalsStruct.SectionOverviewsAlignedWithTemplateDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'SectionOverviewsAlignedWithTemplateDirectory'];
-    
+
     %Directories completed during a wafer reload
     GuiGlobalsStruct.ReimageLowResFiducialsDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'ReimageLowResFiducialsDirectory'];
     GuiGlobalsStruct.ReimageHighResFiducialsDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'ReimageHighResFiducialsDirectory'];
     GuiGlobalsStruct.ReimageWithCorrectionLowResFiducialsDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'ReimageWithCorrectionLowResFiducialsDirectory'];
     GuiGlobalsStruct.ReimageWithCorrectionHighResFiducialsDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'ReimageWithCorrectionHighResFiducialsDirectory'];
-    
+
     %Temp images directory
     GuiGlobalsStruct.TempImagesDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'TempImagesDirectory'];
-    
+
     %AlignedTargetListsDirectory is specifically for keeping track of
     %multi-wafer alligned target points (same tissue position across
     %multiple sections and wafers)
     GuiGlobalsStruct.AlignedTargetListsDirectory = [GuiGlobalsStruct.UTSLDirectory filesep 'AlignedTargetListsDirectory'];
-    
+
     GuiGlobalsStruct.ManuallyCorrectedStagePositionsDirectory = [GuiGlobalsStruct.WaferDirectory  filesep 'ManuallyCorrectedStagePositionsDirectory'];
-    
+
     %Check this wafer directory to see how much processing has already
     %occured
-    
+
     %*** I now go through each of the directories for the wafer mapping to
     %determine if each step of the wafer mapping has been completed) If it
     %has then I unlock the menu item for the next step
-    
+
     %Check if 'Acquire Full Wafer Montage' step is done
     if exist(GuiGlobalsStruct.FullWaferTileImagesDirectory,'dir')
         FullMapDataFileNameStr = [GuiGlobalsStruct.FullWaferTileImagesDirectory filesep 'FullMapData.mat'];
@@ -724,11 +724,11 @@ else
             set(handles.AcquireFullWaferMontage_MenuItem,'Checked','on');
             set(handles.FreeView_MenuItem,'Enable','on');
             set(handles.AcquireLowResFiducials_MenuItem,'Enable','on'); %Next step
-            
+
             disp(sprintf('Loading FullMapData.mat file: %s',FullMapDataFileNameStr));
             load(FullMapDataFileNameStr,'FullMapData');
             GuiGlobalsStruct.FullMapData = FullMapData;
-            
+
             FullWaferImageFileNameStr = [GuiGlobalsStruct.FullWaferTileImagesDirectory filesep 'FullMapImage.tif'];
             disp(['Loading image file: ' FullWaferImageFileNameStr]);
             GuiGlobalsStruct.FullWaferDownsampledDisplayImage = imread(FullWaferImageFileNameStr,'tif');
@@ -742,18 +742,18 @@ else
         GuiGlobalsStruct.FullMapData = [];
         GuiGlobalsStruct.FullWaferDownsampledDisplayImage = [];
     end
-    
+
     %Check if 'Acquire Low Res. Fiducials' step is done
     if exist(GuiGlobalsStruct.LowResFiducialsDirectory,'dir')
         set(handles.AcquireLowResFiducials_MenuItem,'Checked','on');
         set(handles.AcquireHighResFiducials_MenuItem,'Enable','on');%Next step
     end
-    
+
     %Check if 'Acquire High Res. Fiducials' step is done
     if exist(GuiGlobalsStruct.HighResFiducialsDirectory,'dir')
         set(handles.AcquireHighResFiducials_MenuItem,'Checked','on');
         set(handles.AcquireExampleSectionImage_MenuItem,'Enable','on');%Next step
-        
+
         %Note: this is minimal info needed for reload
         set(handles.ReloadWaferOperations_MenuItem,'Enable','on');
         %The following are in the ReloadWaferOperations menu
@@ -761,17 +761,17 @@ else
         set(handles.ReloadStageCorrection_MenuItem,'Enable','on');
         set(handles.FreeViewWithStageCorrection_MenuItem,'Enable','on');
     end
-    
+
 %     if exist(GuiGlobalsStruct.OpticalWaferImageDirectory)
 %         set(handles.AutoMapAllSections_MenuItem,'Enable','on');%Next step
 %     end
-%     
+%
     %Check if 'Acquire Example Section Image' step is done
     if exist(GuiGlobalsStruct.ExampleSectionImageDirectory,'dir')
         set(handles.AcquireExampleSectionImage_MenuItem,'Checked','on');
         set(handles.ContrastCompensate_MenuItem,'Enable','on');%Next step
     end
-    
+
     %Check if 'Contrast Compensate' step is done
     if exist(GuiGlobalsStruct.FullWaferTileImagesDirectory,'dir')
         MyTempFileName = [GuiGlobalsStruct.FullWaferTileImagesDirectory filesep 'FullMapImage_BeforeContrastCompensation.tif'];
@@ -784,7 +784,7 @@ else
         set(handles.ContrastCompensate_MenuItem,'Checked','on');
         set(handles.CropExampleImage_MenuItem,'Enable','on');%Next step
     end
-    
+
     %Check if 'Crop Example Image' step is done
     if exist(GuiGlobalsStruct.ExampleSectionImageDirectory,'dir')
         MyTempFileName = [GuiGlobalsStruct.ExampleSectionImageDirectory filesep 'ExampleSectionImageCropped.tif'];
@@ -793,7 +793,7 @@ else
             set(handles.ThresholdImages_MenuItem,'Enable','on');%Next step
         end
     end
-    
+
     %Check if 'Threshold Images' step is done
     if exist(GuiGlobalsStruct.ExampleSectionImageDirectory,'dir')
         MyTempFileName = [GuiGlobalsStruct.ExampleSectionImageDirectory filesep 'ExampleSectionImage_Thresholded.tif'];
@@ -802,7 +802,7 @@ else
             set(handles.AutoMapAllSections_MenuItem,'Enable','on');%Next step
         end
     end
-    
+
     %Check if 'Auto Map All Sections' step is done
     if exist(GuiGlobalsStruct.FullWaferTileImagesDirectory,'dir')
         %Load Coarse Section list if it exists
@@ -811,10 +811,10 @@ else
             if exist(CoarseSectionListFileNameStr,'file')
                 disp(['Loading CoarseSectionList.mat file: ' CoarseSectionListFileNameStr]);
                 load(CoarseSectionListFileNameStr,'CoarseSectionList');
-                
+
                 %Copy this info into GuiGlobalsStruct
                 GuiGlobalsStruct.CoarseSectionList = CoarseSectionList;
-                set(handles.AutoMapAllSections_MenuItem,'Checked','on'); 
+                set(handles.AutoMapAllSections_MenuItem,'Checked','on');
                 set(handles.PerformPixelToStageCalibration_MenuItem,'Enable','on'); %Next step
                 set(handles.DisplaySectionCrosshairs_ToolbarButton,'state','on'); %default to displaying the sections labels
                 GuiGlobalsStruct.IsDisplayCoarseSectionList = true;
@@ -824,10 +824,10 @@ else
         else
             GuiGlobalsStruct.CoarseSectionList = [];
         end
-        
+
         UpdateFullWaferDisplay(handles);
     end
-    
+
     %Check if 'Perform Pixel To Stage Calibration' step is done
     if exist(GuiGlobalsStruct.PixelToStageCalibrationDirectory,'dir')
         MyTempFileName = [GuiGlobalsStruct.PixelToStageCalibrationDirectory filesep 'CalibrationFile.mat'];
@@ -836,7 +836,7 @@ else
             load(CalibrationFileNameStr, 'MicronsPerPixel_FromCalibration', 'MicronsPerPixel_FromFibicsReadFOV');
             GuiGlobalsStruct.MicronsPerPixel_FromCalibration_ForOverviewImages = MicronsPerPixel_FromCalibration;
 
-            
+
             set(handles.PerformPixelToStageCalibration_MenuItem,'Checked','on');
             set(handles.AcquireSectionOverviewImages_MenuItem,'Enable','on');%Next step
         end
@@ -847,11 +847,11 @@ else
             rmfield(GuiGlobalsStruct, 'MicronsPerPixel_FromCalibration_ForOverviewImages')
         end
     end
-    
+
     %Check if 'Acquire Section Overview Images' step is done
     if exist(GuiGlobalsStruct.SectionOverviewsDirectory,'dir')
         set(handles.AcquireSectionOverviewImages_MenuItem,'Checked','on');
-        
+
         %Wafer mapping has been completed on this wafer.
         % The user can now legally go on to processing these images and/or
         %   reloading this wafer in teh SEM
@@ -863,15 +863,15 @@ else
         set(handles.ChooseSectionTemplateImageSubsequentWafer_MenuItem,'Enable','on'); %next step
         set(handles.CropSectionTemplateImage_MenuItem,'Enable','off');
         set(handles.AlignSectionOverviews_MenuItem,'Enable','off');
-        
+
         set(handles.ReloadWaferOperations_MenuItem,'Enable','on');
         %The following are in the ReloadWaferOperations menu
         set(handles.DoAllStepsForStageCorrection_MenuItem,'Enable','on');
         set(handles.ReloadStageCorrection_MenuItem,'Enable','on');
         set(handles.FreeViewWithStageCorrection_MenuItem,'Enable','on');
     end
-    
-    
+
+
     %*** Continue checking how much has been done on the processing side
     %Check if 'Choose Section Template Image' step is done
     if exist(GuiGlobalsStruct.SectionOverviewTemplateDirectory,'dir')
@@ -881,7 +881,7 @@ else
             set(handles.CropSectionTemplateImage_MenuItem,'Enable','on'); %next step
        end
     end
-    
+
     %Check if 'Crop Section Template Image' step is done
     if exist(GuiGlobalsStruct.SectionOverviewTemplateDirectory,'dir')
         CroppedImageFileNameStr = [GuiGlobalsStruct.SectionOverviewTemplateDirectory filesep 'SectionOverviewTemplateCroppedFilledPeriphery.tif'];
@@ -890,12 +890,12 @@ else
             set(handles.AlignSectionOverviews_MenuItem,'Enable','on');%next step
         end
     end
-    
+
     %Check if 'Align Section Overviews' step is done
     if exist(GuiGlobalsStruct.SectionOverviewsAlignedWithTemplateDirectory, 'dir')
         set(handles.AlignSectionOverviews_MenuItem,'Checked','on');
     end
-    
+
 end
 
 % --------------------------------------------------------------------
@@ -912,7 +912,7 @@ if isempty(InputDlgAnswer)
     disp('User Canceled');
     return;
 else
-    
+
     %%% START: Clear all variables except those that should have been filled before
     Temp_handles_FromWaferMapper = GuiGlobalsStruct.handles_FromWaferMapper;
     Temp_HandleToWaferMapperFigure = GuiGlobalsStruct.HandleToWaferMapperFigure;
@@ -944,12 +944,12 @@ else
     GuiGlobalsStruct.UTSLDirectory = Temp_UTSLDirectory;
     GuiGlobalsStruct.ListOfWaferNames = Temp_ListOfWaferNames;
     %%% END: Clear all variables except those that should have been filled before
-    
+
     InitParameters(handles);
-    
+
     NewNameStr = InputDlgAnswer{1};
     NewDirPath = [GuiGlobalsStruct.UTSLDirectory filesep NewNameStr];
-    
+
     if ~exist(NewDirPath,'dir')
         [success,message,messageid] = mkdir(NewDirPath);
         if success == 1
@@ -958,27 +958,27 @@ else
             set(handles.OpenUTSL_MenuItem,'Enable','on');
             set(handles.NewWafer_MenuItem,'Enable','on');
             set(handles.OpenWafer_MenuItem,'Enable','on');
-            
-            
+
+
             GuiGlobalsStruct.WaferDirectory = NewDirPath;
             MyStr = ['WaferMapper - ' GuiGlobalsStruct.WaferDirectory];
             set(GuiGlobalsStruct.HandleToWaferMapperFigure,'name',MyStr);
             StatusBarMessage(MyStr);
-            
+
             %Enable button for next step
             set(handles.MapWaferOperations_MenuItem,'Enable','on');
             set(handles.AcquireFullWaferMontage_MenuItem,'Enable','on'); %Next step
         else
             msgbox(message);
         end
-        
+
     else
         MyStr = ['Directory (' NewDirPath ') already exists. Must manually delete to overwrite'];
         uiwait(msgbox(MyStr));
     end
-    
-    
-    
+
+
+
 end
 
 % --------------------------------------------------------------------
@@ -1118,7 +1118,7 @@ GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_SCANROTATION',0);
 
 IsJustOptical = false;
 if isfield(GuiGlobalsStruct, 'OpticalWaferImageDirectory')
-    if exist(GuiGlobalsStruct.OpticalWaferImageDirectory, 'dir') 
+    if exist(GuiGlobalsStruct.OpticalWaferImageDirectory, 'dir')
         IsJustOptical = true;
     end
 end
@@ -1137,15 +1137,15 @@ end
 
 
 if ~IsJustOptical %if we are not doing optical only then go through normal process, else skip most
-    
+
     GuiGlobalsStruct.ProgramState = 'Acquiring Example Section Image';
     MyStr = ['LEFT CLICK in full wafer display to move stage to that position. \nRIGHT CLICK to ZOOM. \nPress ''G'' Key to grab example section image at current position. \nPress ESC key to finish'];
     uiwait(msgbox(MyStr));
     NavigateFullWaferMap;
-    
+
     set(handles.AcquireExampleSectionImage_MenuItem,'Checked','on');
     set(handles.ContrastCompensate_MenuItem,'Enable','on');
-    
+
 else
     FullMapImage_FileNameStr = [GuiGlobalsStruct.FullWaferTileImagesDirectory filesep 'FullMapImage.tif'];
     MyStr = ['Loading image file: ' FullMapImage_FileNameStr];
@@ -1153,15 +1153,15 @@ else
     FullMapImageToCropFrom = imread(FullMapImage_FileNameStr,'tif');
     h_fig = figure();
     imshow(FullMapImageToCropFrom,[0,255]);
-    
-    
+
+
     MyStr = sprintf('Use mouse to drag box to be around only one section. Should be a little larger than the section. ');
     uiwait(msgbox(MyStr,'modal'));
-    
+
     %put up rubber band box
     k = waitforbuttonpress;
     if k == 0 %was mouse press
-        
+
         point1 = get(gca,'CurrentPoint')   % button down detected
         finalRect = rbbox;                   % return figure units
         point2 = get(gca,'CurrentPoint')    % button up detected
@@ -1169,41 +1169,41 @@ else
         point2 = point2(1,1:2);
         p1 = min(point1,point2);             % calculate locations
         offset = abs(point1-point2);         % and dimensions
-        
+
         UpLeftCorner_C = p1(1);
         UpLeftCorner_R = p1(2);
         LowerRightCorner_C = p1(1)+offset(1);
         LowerRightCorner_R = p1(2)+offset(2);
-        
+
         MyStr = sprintf('UL_R = %d, UL_C = %d,    LR_R = %d, LR_C = %d',UpLeftCorner_R,UpLeftCorner_C,LowerRightCorner_R,LowerRightCorner_C);
         disp(MyStr);
-        
+
         SubImage = FullMapImageToCropFrom(UpLeftCorner_R:LowerRightCorner_R, UpLeftCorner_C:LowerRightCorner_C);
 
         imshow(SubImage,[0,255]);
-        
+
         %Expand this image to match the faux size of the montage
         SubImage = imresize(SubImage, GuiGlobalsStruct.FullMapData.DownsampleFactor);
-        
+
         ImageFileNameStr = [GuiGlobalsStruct.ExampleSectionImageDirectory filesep 'ExampleSectionImage.tif'];
         imwrite(SubImage,ImageFileNameStr,'tif');
-        
+
         MyStr = sprintf('Saved file: %s \n Click OK to continue.',ImageFileNameStr);
         uiwait(msgbox(MyStr));
-        
-        
-        
-        
+
+
+
+
     end
-    
+
     if ishandle(h_fig)
         close(h_fig);
     end
-    
-    
-    
+
+
+
     %uiwait(msgbox('Since this wafer is based on an optical image program is skipping next steps. Press OK when ready to proceed.'));
-    
+
     set(handles.AcquireExampleSectionImage_MenuItem,'Checked','on');
     set(handles.CropExampleImage_MenuItem,'Enable','on');
 %     set(handles.AcquireExampleSectionImage_MenuItem,'Checked','on');
@@ -1350,29 +1350,29 @@ if ~GuiGlobalsStruct.IsZeissAPIInitialized
 else
     uiwait(msgbox('About to initialize FIBICS API. MAKE SURE ATLAS SOFTWARE IS CLOSED. Press OK when ready...'));
     h_msgbox = msgbox('Programatically setting Zeiss SEM to 25x before init of FIBICS. This is necessary to maintain consistency of FOV calcs. between FIBICS sessions','modal');
-   
-    
+
+
     StartMag = 25;
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_MAG',StartMag);
     pause(0.5);
     close(h_msgbox);
-    
+
     if GuiGlobalsStruct.MyCZEMAPIClass.GetMag() == StartMag
         GuiGlobalsStruct.MyCZEMAPIClass.Fibics_Initialise();
-        
+
         for i=1:15
             MyStr = sprintf(' Fibics Initializing, pausing 15 seconds... %d', i);
             h_msgbox = msgbox(MyStr);
             pause(1);
             close(h_msgbox);
         end
-        
-        
-        MyStr = sprintf('Fibics API successfully initialized.'); 
+
+
+        MyStr = sprintf('Fibics API successfully initialized.');
         StatusBarMessage(MyStr);
         GuiGlobalsStruct.IsFibicsAPIInitialized = true;
         set(handles.InitializeFibicsControl_MenuItem,'Checked','on');
-        
+
         %bring the WaferMapper figure to the front again
         figure(GuiGlobalsStruct.HandleToWaferMapperFigure);
     else
@@ -1395,14 +1395,14 @@ else
     FileName = 'C:\Windows\Temp\TestFibicsAcquireImage.tif';
     delete(FileName);
     pause(.2);
-    
+
     GuiGlobalsStruct.MyCZEMAPIClass.Fibics_AcquireImage(1024,1024,...
         1,FileName);
     while(GuiGlobalsStruct.MyCZEMAPIClass.Fibics_IsBusy)
         pause(.2);
     end
     pause(.2);
-    
+
     AttemptTime = 0; %sec
     IsReadOK = false;
     while (~IsReadOK) && (AttemptTime < 5)
@@ -1416,7 +1416,7 @@ else
             AttemptTime = AttemptTime + TimeInc;
         end
     end
-    
+
     if IsReadOK
         h_fig = figure;
         imshow(MyImage,[0, 255]);
@@ -1472,9 +1472,9 @@ IsDoCalForXAndY = false; %used in NavigateFullWaferMap script
 NavigateFullWaferMap; %Note it is in that function that the multiple images will be taken
 
 if IsDoCalForXAndY
-   PerformPixelToStageCalibration(handles); 
+   PerformPixelToStageCalibration(handles);
 else
-   PerformPixelToStageCalibration_YDirOnly(handles);  %PerformPixelToStageCalibration_XDirOnly(handles); 
+   PerformPixelToStageCalibration_YDirOnly(handles);  %PerformPixelToStageCalibration_XDirOnly(handles);
 end
 
 
@@ -1577,8 +1577,8 @@ else
     else
         Val = 0;
     end
-    
-    
+
+
     ValStr = num2str(Val);
     set(handles.SectionLabel_EditBox,'String',ValStr);
 end
@@ -1610,12 +1610,12 @@ if ~exist(ImageFileNameStr, 'file')
        WaferName = PopupMenuCellArray{PopupMenuIndex};
        %determine the last section number of this wafer
        CoarseSectionListFileNameStr = [GuiGlobalsStruct.UTSLDirectoryfilesep WaferName filesep 'FullWaferTileImages' filesep 'CoarseSectionList.mat'];
-       
+
        load(CoarseSectionListFileNameStr,'CoarseSectionList');
        LastSectionNumberStr = CoarseSectionList(length(CoarseSectionList)).Label;
        set(handles.SectionLabel_EditBox,'String',LastSectionNumberStr); %first section
    end
-    
+
 end
 
 UpdateSectionOverviewDisplay(handles);
@@ -1663,7 +1663,7 @@ if ~exist(ImageFileNameStr, 'file')
        set(handles.WaferForSectionOverviewDisplay_PopupMenu,'Value',PopupMenuIndex+1); %next wafer
        set(handles.SectionLabel_EditBox,'String','1'); %first section
    end
-    
+
 end
 
 UpdateSectionOverviewDisplay(handles);
@@ -1810,7 +1810,7 @@ end
 %Save low res correction stage transformation
 LowResStageTransformationFileName =[GuiGlobalsStruct.ReimageLowResFiducialsDirectory filesep 'LowResStageTransformation.mat'];
 StageTransformScanRotationAngleInDegrees = GuiGlobalsStruct.StageTransformScanRotationAngleInDegrees;
-StageTransform = GuiGlobalsStruct.StageTransform; 
+StageTransform = GuiGlobalsStruct.StageTransform;
 save(LowResStageTransformationFileName, 'StageTransformScanRotationAngleInDegrees', 'StageTransform');
 
 
@@ -1821,16 +1821,16 @@ if IsPauseForFeedback
         [success,message,messageid] = mkdir(GuiGlobalsStruct.ReimageWithCorrectionLowResFiducialsDirectory);
     end
     ReimageFiducials(GuiGlobalsStruct.LowResFiducialsDirectory, GuiGlobalsStruct.ReimageWithCorrectionLowResFiducialsDirectory, false);
-    
+
     %*** Display how good this did and pause for user
     CheckCorrection(GuiGlobalsStruct.LowResFiducialsDirectory, ...
         GuiGlobalsStruct.ReimageLowResFiducialsDirectory, ...
         GuiGlobalsStruct.ReimageWithCorrectionLowResFiducialsDirectory);
-    
-    
+
+
     %uiwait(msgbox('Check low res correction results then press ok to continue.'));
 
-    
+
 end
 
 %*** Reimage high res fiducials
@@ -1846,7 +1846,7 @@ ReimageFiducials(GuiGlobalsStruct.HighResFiducialsDirectory, GuiGlobalsStruct.Re
 %function [StageTransform, FudgeScaleUsed] = CalculateOffsetOfAllFiducials(FiducialsDirectory, ReimageFiducialsDirectory, IsCalculateFudgeScale, FudgeScaleToUseOtherwise)
 %NOTE: THE FudgeScaleUsedForLowRes VALUE SHOULD BE STILL APPROPRIATE TO USE
 %AS LONG AS WE HAVE NOT DONE AN AUTOFOCUS
-    
+
     [StageTransform, dummy] = CalculateOffsetOfAllFiducials(GuiGlobalsStruct.HighResFiducialsDirectory, GuiGlobalsStruct.ReimageHighResFiducialsDirectory, false, FudgeScaleUsedForLowRes);
 end
 
@@ -1866,7 +1866,7 @@ end
 %Save high res correction stage transformation
 HighResStageTransformationFileName = [GuiGlobalsStruct.ReimageHighResFiducialsDirectory filesep 'HighResStageTransformation.mat'];
 StageTransformScanRotationAngleInDegrees = GuiGlobalsStruct.StageTransformScanRotationAngleInDegrees;
-StageTransform = GuiGlobalsStruct.StageTransform; 
+StageTransform = GuiGlobalsStruct.StageTransform;
 save(HighResStageTransformationFileName, 'StageTransformScanRotationAngleInDegrees', 'StageTransform');
 
 
@@ -1887,7 +1887,7 @@ CheckCorrection(GuiGlobalsStruct.HighResFiducialsDirectory, ...
 
 
 if IsPauseForFeedback
-   uiwait(msgbox('Check high res correction results then press ok to continue.')); 
+   uiwait(msgbox('Check high res correction results then press ok to continue.'));
 end
 
 %Quantify how well this did
@@ -1896,10 +1896,10 @@ r_error_meters_max = 0;
 for FiducialNum = 1:length(GuiGlobalsStruct.FiducialAlignmentArray)
     XOffset_Meters = GuiGlobalsStruct.FiducialAlignmentArray(FiducialNum).XOffset_Meters;
     YOffset_Meters = GuiGlobalsStruct.FiducialAlignmentArray(FiducialNum).YOffset_Meters;
-    
+
     MyStr = sprintf('Fiducial#%d: XOffset_Meters = %d, YOffset_Meters = %d',FiducialNum,XOffset_Meters,YOffset_Meters);
     disp(MyStr);
-    
+
     r = sqrt(XOffset_Meters^2 + YOffset_Meters^2);
     if r > r_error_meters_max
         r_error_meters_max = r;
@@ -1914,7 +1914,7 @@ end
 HighResStageTransformationFileName = [GuiGlobalsStruct.ReimageHighResFiducialsDirectory filesep 'HighResStageTransformation.mat'];
 load(HighResStageTransformationFileName);
 GuiGlobalsStruct.StageTransformScanRotationAngleInDegrees = StageTransformScanRotationAngleInDegrees;
-GuiGlobalsStruct.StageTransform = StageTransform; 
+GuiGlobalsStruct.StageTransform = StageTransform;
 MyStr = sprintf('Loaded Stage Transform: ScanRot = %d deg, x_offset = %d, y_offset = %d',...
     GuiGlobalsStruct.StageTransformScanRotationAngleInDegrees,...
     GuiGlobalsStruct.StageTransform.tdata.T(3,1),...
@@ -1945,7 +1945,7 @@ global GuiGlobalsStruct;
 HighResStageTransformationFileName = [GuiGlobalsStruct.ReimageHighResFiducialsDirectory filesep 'HighResStageTransformation.mat'];
 load(HighResStageTransformationFileName);
 GuiGlobalsStruct.StageTransformScanRotationAngleInDegrees = StageTransformScanRotationAngleInDegrees;
-GuiGlobalsStruct.StageTransform = StageTransform; 
+GuiGlobalsStruct.StageTransform = StageTransform;
 
 
 MyStr = sprintf('Loaded Stage Transform: ScanRot = %d deg, x_offset = %d, y_offset = %d',...
@@ -1971,7 +1971,7 @@ function ChooseSectionTemplateImage_MenuItem_Callback(hObject, eventdata, handle
 %FUNCTION OF SUBSEQUENT WAFERS
 global GuiGlobalsStruct;
 
-%Make directory 
+%Make directory
 GuiGlobalsStruct.SectionOverviewTemplateDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'SectionOverviewTemplateDirectory'];
 
 if exist(GuiGlobalsStruct.SectionOverviewTemplateDirectory, 'dir')
@@ -2006,9 +2006,9 @@ if length(ListOfTifFileNames) > 0
     [SelectionNumber,isok] = listdlg('PromptString','Select a wafer dir:',...
         'SelectionMode','single',...
         'ListString',ListOfTifFileNames);
-    
+
     if isok == 1
-        ImageFileNameStr = [SODir filesep ListOfTifFileNames{SelectionNumber}];  
+        ImageFileNameStr = [SODir filesep ListOfTifFileNames{SelectionNumber}];
     else
         return;
     end
@@ -2022,7 +2022,7 @@ h_fig = figure();
 MyImage = imread(ImageFileNameStr);
 imshow(MyImage, [0,255]);
 
-NewImageFileNameStr = [GuiGlobalsStruct.SectionOverviewTemplateDirectory filesep 'SectionOverviewTemplate.tif']; 
+NewImageFileNameStr = [GuiGlobalsStruct.SectionOverviewTemplateDirectory filesep 'SectionOverviewTemplate.tif'];
 MyStr = sprintf('About to copy file: %s to new file: %s',ImageFileNameStr,NewImageFileNameStr);
 ButtonName = questdlg(MyStr,'title','OK','Cancel','OK');
 if strcmp(ButtonName,'OK')
@@ -2046,7 +2046,7 @@ function ChooseSectionTemplateImageSubsequentWafer_MenuItem_Callback(hObject, ev
 %A SUBSEQUENT WAFER OF THE UTSL!!! SEE ABOVE FUNCTION FOR FIRST WAFERS
 global GuiGlobalsStruct;
 
-%Make directory 
+%Make directory
 GuiGlobalsStruct.SectionOverviewTemplateDirectory = [GuiGlobalsStruct.WaferDirectory filesep 'SectionOverviewTemplateDirectory'];
 
 if exist(GuiGlobalsStruct.SectionOverviewTemplateDirectory, 'dir')
@@ -2075,9 +2075,9 @@ if length(ListOfDirNames) > 0
     [SelectionNumber,isok] = listdlg('PromptString','Select a wafer dir:',...
         'SelectionMode','single',...
         'ListString',ListOfDirNames);
-    
+
     if isok == 1
-        TempWaferDirectory = [GuiGlobalsStruct.UTSLDirectory filesep ListOfDirNames{SelectionNumber}];  
+        TempWaferDirectory = [GuiGlobalsStruct.UTSLDirectory filesep ListOfDirNames{SelectionNumber}];
     else
         return;
     end
@@ -2087,7 +2087,7 @@ else
 end
 
 
-TempSectionOverviewAlignedWithTemplateDirectory = [TempWaferDirectory filesep 'SectionOverviewsAlignedWithTemplateDirectory']; 
+TempSectionOverviewAlignedWithTemplateDirectory = [TempWaferDirectory filesep 'SectionOverviewsAlignedWithTemplateDirectory'];
 
 DirListArray = dir(TempSectionOverviewAlignedWithTemplateDirectory);
 n = 1;
@@ -2102,9 +2102,9 @@ if length(ListOfTifFileNames) > 0
     [SelectionNumber,isok] = listdlg('PromptString','Select a wafer dir:',...
         'SelectionMode','single',...
         'ListString',ListOfTifFileNames);
-    
+
     if isok == 1
-        ImageFileNameStr = [TempSectionOverviewAlignedWithTemplateDirectory filesep ListOfTifFileNames{SelectionNumber}];  
+        ImageFileNameStr = [TempSectionOverviewAlignedWithTemplateDirectory filesep ListOfTifFileNames{SelectionNumber}];
     else
         return;
     end
@@ -2118,7 +2118,7 @@ h_fig = figure();
 MyImage = imread(ImageFileNameStr);
 imshow(MyImage, [0,255]);
 
-NewImageFileNameStr = [ GuiGlobalsStruct.SectionOverviewTemplateDirectory filesep 'SectionOverviewTemplate.tif']; 
+NewImageFileNameStr = [ GuiGlobalsStruct.SectionOverviewTemplateDirectory filesep 'SectionOverviewTemplate.tif'];
 MyStr = sprintf('About to copy file: %s to new file: %s',ImageFileNameStr,NewImageFileNameStr);
 ButtonName = questdlg(MyStr,'title','OK','Cancel','OK');
 if strcmp(ButtonName,'OK')
@@ -2142,13 +2142,13 @@ function AlignSectionOverviews_MenuItem_Callback(hObject, eventdata, handles)
 %Make directory for fiducial images and info
 global GuiGlobalsStruct;
 
-%Make directory 
+%Make directory
 GuiGlobalsStruct.SectionOverviewsAlignedWithTemplateDirectory = [ GuiGlobalsStruct.WaferDirectory filesep 'SectionOverviewsAlignedWithTemplateDirectory'];
 
 if exist(GuiGlobalsStruct.SectionOverviewsAlignedWithTemplateDirectory, 'dir')
     newAlignDir = [GuiGlobalsStruct.SectionOverviewsAlignedWithTemplateDirectory num2str(datenum(clock))];
     copyfile(GuiGlobalsStruct.SectionOverviewsAlignedWithTemplateDirectory,newAlignDir)
-    
+
 end
 
 [success,message,messageid] = mkdir(GuiGlobalsStruct.SectionOverviewsAlignedWithTemplateDirectory);
@@ -2435,15 +2435,15 @@ global GuiGlobalsStruct;
 %ANSWER = INPUTDLG(PROMPT,NAME,NUMLINES,DEFAULTANSWER)
 
 TargetPointParametersGui
-% 
+%
 % MyAnswer = inputdlg('Enter width of Low Res Box (for alignment) in microns','Montage Setup', 1, {num2str(GuiGlobalsStruct.MontageTarget.LowResForAlignWidthInMicrons)});
-% 
+%
 % if ~isempty(MyAnswer) %is empty if user canceled
 %     MyAnswer2Num = str2double(MyAnswer{1}); %NaN if invalid or blank
 % else
 %     MyAnswer2Num = NaN;
 % end
-% 
+%
 % if ~( isnan(MyAnswer2Num) || (MyAnswer2Num < 1) || (MyAnswer2Num > 4000) )
 %     GuiGlobalsStruct.MontageTarget.LowResForAlignWidthInMicrons = MyAnswer2Num;
 %     GuiGlobalsStruct.MontageTarget.LowResForAlignHeightInMicrons = MyAnswer2Num;
@@ -2503,22 +2503,22 @@ else
             n = n + 1;
         end
     end
-    
+
     if length(ListOfDirNames) > 0
         [SelectionNumber,isok] = listdlg('PromptString','Select:',...
             'SelectionMode','single',...
             'ListString',ListOfDirNames);
-        
+
         if isok == 1
             GuiGlobalsStruct.AlignedTargetListDir = [GuiGlobalsStruct.AlignedTargetListsDirectory filesep ListOfDirNames{SelectionNumber}];
             %load AlignedTargetList.mat
             DataFileNameStr = [GuiGlobalsStruct.AlignedTargetListDir filesep 'AlignedTargetList.mat'];
             load(DataFileNameStr, 'AlignedTargetList');
-            
+
             GuiGlobalsStruct.AlignedTargetList = AlignedTargetList;
-            
+
             GuiGlobalsStruct.IsDisplayMontageTarget = true;
-            
+
             %fill in all montage target point stuff from file
             GuiGlobalsStruct.MontageTarget.LowResForAlignWidthInMicrons = AlignedTargetList.LowResForAlignWidthInMicrons;
             GuiGlobalsStruct.MontageTarget.LowResForAlignHeightInMicrons = AlignedTargetList.LowResForAlignHeightInMicrons;
@@ -2527,23 +2527,23 @@ else
                 GuiGlobalsStruct.MontageTarget.AF_X_Offset_Microns= AlignedTargetList.AF_X_Offset_Microns;
                 GuiGlobalsStruct.MontageTarget.AF_Y_Offset_Microns= AlignedTargetList.AF_Y_Offset_Microns;
             end
-            
-           
+
+
             WaferNameIndex = find(strcmp(AlignedTargetList.ListOfWaferNames,GuiGlobalsStruct.WaferName))
             SectionIndex = 1;
             GuiGlobalsStruct.MontageTarget.r = AlignedTargetList.WaferArray(WaferNameIndex).SectionArray(SectionIndex).r;
             GuiGlobalsStruct.MontageTarget.c = AlignedTargetList.WaferArray(WaferNameIndex).SectionArray(SectionIndex).c;
-            
-       
+
+
             %reset montage specific parameters to defaults
             GuiGlobalsStruct.MontageTarget.MontageNorthAngle = 0; %degrees
             GuiGlobalsStruct.MontageTarget.MontageTileWidthInMicrons = 40.96;
             GuiGlobalsStruct.MontageTarget.MontageTileHeightInMicrons = 40.96;
-            
-   
-            
+
+
+
             UpdateSectionOverviewDisplay(handles);
-            
+
         end
     else
         uiwait(msgbox('No AlignedTargetLists found.'));
@@ -2625,7 +2625,7 @@ if 1 ~= strcmp(WaferName_CurrentlyLoaded, WaferName_InDisplay)
         WaferName_InDisplay, WaferName_CurrentlyLoaded);
     uiwait(msgbox(MyStr));
 else
-   GoToTargetPointWithImageBasedStageCorrection; 
+   GoToTargetPointWithImageBasedStageCorrection;
 end
 
 
@@ -2705,35 +2705,35 @@ FOV_microns = GuiGlobalsStruct.WaferParameters.SectionOverviewFOV_microns; %4096
 
 SizeOfPixelInTiles_microns =  GuiGlobalsStruct.WaferParameters.TileFOV_microns/GuiGlobalsStruct.WaferParameters.TileWidth_pixels;
 
-    
+
 
 WidthSubImage = FOV_microns/SizeOfPixelInTiles_microns;
 HeightSubImage = WidthSubImage;
 
 
 for SectionNum = 1:length(GuiGlobalsStruct.CoarseSectionList)
-    
-    
+
+
     r_IndexInFullMap = GuiGlobalsStruct.CoarseSectionList(SectionNum).rpeak*GuiGlobalsStruct.FullMapData.DownsampleFactor;
     c_IndexInFullMap = GuiGlobalsStruct.CoarseSectionList(SectionNum).cpeak*GuiGlobalsStruct.FullMapData.DownsampleFactor;
     Label = GuiGlobalsStruct.CoarseSectionList(SectionNum).Label;
-    
-    
+
+
     %***HARD-CODING. For AMW: fix this***
     WidthSubImage = 1024;
     HeightSubImage = 1024;
-    
+
     [SubImage] = ExtractSubImageFromFullWaferTileMontage(r_IndexInFullMap, c_IndexInFullMap, WidthSubImage, HeightSubImage);
- 
+
     figure(232);
     imshow(SubImage, [0, 255]);
     MyStr = sprintf('Section# = %d, Label = %s', SectionNum, Label);
     title(MyStr);
-    
-    
+
+
     pause(.1);
-    
-    
+
+
 end
 
 
@@ -2855,6 +2855,7 @@ if isfield(SavedMontageParameters, 'IsSingle_AF_ForWholeMontage')
     GuiGlobalsStruct.MontageParameters.IsXFit = SavedMontageParameters.IsXFit;
     GuiGlobalsStruct.MontageParameters.RowDistBetweenAFPointsMicrons = SavedMontageParameters.RowDistBetweenAFPointsMicrons;
     GuiGlobalsStruct.MontageParameters.ColDistBetweenAFPointsMicrons = SavedMontageParameters.ColDistBetweenAFPointsMicrons;
+    GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt = SavedMontageParameters.IsAFOnEveryTileMAPFoSt
 end
 
 if isfield(SavedMontageParameters, 'AutoFocusStartMag') %added 12-8-2011
@@ -2904,13 +2905,14 @@ if isfield(SavedMontageParameters, 'StigResetThreshold')
 end
 
 
+
 GuiGlobalsStruct.MontageParameters.MontageOverviewImageFOV_microns = SavedMontageParameters.MontageOverviewImageFOV_microns;
 GuiGlobalsStruct.MontageParameters.MontageOverviewImageWidth_pixels = SavedMontageParameters.MontageOverviewImageWidth_pixels;
 GuiGlobalsStruct.MontageParameters.MontageOverviewImageDwellTime_microseconds = SavedMontageParameters.MontageOverviewImageDwellTime_microseconds;
 
 
 
-%cludge 
+%cludge
 GuiGlobalsStruct.MontageTarget.MontageNorthAngle = GuiGlobalsStruct.MontageParameters.MontageNorthAngle;
 GuiGlobalsStruct.MontageTarget.NumberOfTileRows = GuiGlobalsStruct.MontageParameters.NumberOfTileRows;
 GuiGlobalsStruct.MontageTarget.NumberOfTileCols = GuiGlobalsStruct.MontageParameters.NumberOfTileCols;
@@ -2977,7 +2979,7 @@ global GuiGlobalsStruct;
 SavedMontageTargetPointParameters.r = GuiGlobalsStruct.MontageTarget.r;
 SavedMontageTargetPointParameters.c = GuiGlobalsStruct.MontageTarget.c;
 SavedMontageTargetPointParameters.LowResForAlignWidthInMicrons = GuiGlobalsStruct.MontageTarget.LowResForAlignWidthInMicrons;
-SavedMontageTargetPointParameters.LowResForAlignHeightInMicrons = GuiGlobalsStruct.MontageTarget.LowResForAlignHeightInMicrons; 
+SavedMontageTargetPointParameters.LowResForAlignHeightInMicrons = GuiGlobalsStruct.MontageTarget.LowResForAlignHeightInMicrons;
 % SavedMontageTargetPointParameters.AF_X_Offset_Microns = GuiGlobalsStruct.MontageTarget.AF_X_Offset_Microns;
 % SavedMontageTargetPointParameters.AF_Y_Offset_Microns = GuiGlobalsStruct.MontageTarget.AF_Y_Offset_Microns;
 
@@ -3136,18 +3138,18 @@ DataFileNameStr = [GuiGlobalsStruct.ManuallyCorrectedStagePositionsDirectory fil
 if exist(DataFileNameStr)
     disp(sprintf('Loading %s', DataFileNameStr));
     load(DataFileNameStr,'Info');
-    
-    
+
+
     InfoTextStr = evalc('disp(Info)');
     set(handles.ManuallyCorrectedStagePositionInfo_edit, 'String', InfoTextStr);
-    
+
     StageX_Meters = Info.StageX_Meters;
     StageY_Meters = Info.StageY_Meters;
     stage_z = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_Z');
     stage_t = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_T');
     stage_r = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_R');
     stage_m = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_M');
-    
+
     MyStr = sprintf('Moving stage to(%0.5g, %0.5g)',StageX_Meters,StageY_Meters);
     disp(MyStr);
     GuiGlobalsStruct.MyCZEMAPIClass.MoveStage(StageX_Meters,StageY_Meters,stage_z,stage_t,stage_r,stage_m);
@@ -3155,7 +3157,7 @@ if exist(DataFileNameStr)
         pause(.02)
     end
     wmBackLash
-    
+
 
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_SCANROTATION',Info.ScanRotation);
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',Info.WorkingDistance);
@@ -3168,10 +3170,10 @@ if exist(DataFileNameStr)
 else
     InfoTextStr = 'No file. \n Going to open loop position.';
     set(handles.ManuallyCorrectedStagePositionInfo_edit, 'String', InfoTextStr);
-    
+
     GoToMontageTargetPointRotationAndFOV;
 end
-    
+
 
 
 % --------------------------------------------------------------------

@@ -4,7 +4,7 @@ global GuiGlobalsStruct
 
 bookName = GuiGlobalsStruct.CurrentLogBook ;
 bookDir = GuiGlobalsStruct.TempImagesDirectory; 
-safesave([GuiGlobalsStruct.TempImagesDirectory '\logBooks\' bookName '.mat'],'logBook')
+safeSave([GuiGlobalsStruct.TempImagesDirectory '\logBooks\' bookName '.mat'],'logBook')
 
     
     %% Read Quality into midQual

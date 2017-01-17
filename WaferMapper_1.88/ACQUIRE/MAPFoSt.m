@@ -33,7 +33,7 @@ T2=-15;
 
 % set delay after changing WD
 %frametime=sm.Get_ReturnTypeSingle('AP_FRAME_TIME')/1000; %time in seconds to scan a whole frame
-frametime=1; 
+frametime=1;
 
 %begin MAPFoSt
 %get starting WD and Stig
@@ -113,20 +113,20 @@ delete(FileName);
     end
     sm.Set_PassedTypeSingle('AP_WD',CurrentWorkingDistance);
     pause(0.1);
-% *** END 
+% *** END
 
 %get actual (test) aberrations, in um
     T1=10^6*(T1WD-CurrentWorkingDistance);
     T2=10^6*(T2WD-CurrentWorkingDistance);
-    
+
 %% MAPFoSt
 % setup variables
-NA=0.0079; %empirically determined NA, rad
+NA=0.0075; %empirically determined NA, rad
 sigma =mean([std(double(I1(:))), std(double(I2(:)))]); % determine sigma for real space, approximation for shot noise
 [Kx, Ky]=meshgrid((mod(0.5+[0:ImageWidthInPixels-1]/ImageWidthInPixels,1)-0.5)*(6.28*ImageWidthInPixels/FOV),(mod(0.5+[0:ImageHeightInPixels-1]/ImageHeightInPixels,1)-0.5)*(6.28*ImageHeightInPixels/FOV)); % use mod instead of cirshift for backwards compatibilty, rad/um
 %[Kx, Ky]=meshgrid((circshift([0:ImageWidthInPixels-1]/ImageWidthInPixels,ImageWidthInPixels/2,2)-0.5)*(6.28*ImageWidthInPixels/FOV),(circshift([0:ImageHeightInPixels-1]/ImageHeightInPixels,ImageHeightInPixels/2,2)-0.5)*(6.28*ImageHeightInPixels/FOV)); % calculate wave vectors, rad/um
 fI1=fft2(double(I1)); %image should have dimension 2^n for faster FFT
-fI2=fft2(double(I2)); 
+fI2=fft2(double(I2));
 init=0; % note: non-zero initialization seemed to work a bit better
 
 % minimize parameters
@@ -141,14 +141,15 @@ O=minimize(init,@MAP,p,fI1,fI2,T1,T2,NA,sigma,Kx,Ky);
 %%
 if max(abs(O))<30 % make sure aberration estimate is reasonable (ie less than 30 um)
     % set new WD/Stig from algorithm
-    sm.Set_PassedTypeSingle('AP_WD',CurrentWorkingDistance-10^-6*real(O)); 
+    sm.Set_PassedTypeSingle('AP_WD',CurrentWorkingDistance-10^-6*real(O));
     finalWD=[sm.Get_ReturnTypeSingle('AP_WD') sm.Get_ReturnTypeSingle('AP_STIG_X') sm.Get_ReturnTypeSingle('AP_STIG_Y')];
     if verbosity
         disp(['final WD: ' num2str(10^6*finalWD(1)) 'um' num2str(finalWD(2)) ' ' num2str(finalWD(3))]);
     end
     z=real(O);
 elseif maxiter>1
-    [z,finalWD,I1,I2]=MAPFoSt(ImageHeightInPixels,ImageWidthInPixels,DwellTimeInMicroseconds,FileName,FOV,maxiter-1,single); 
+    %[z,finalWD,I1,I2]=MAPFoSt(ImageHeightInPixels,ImageWidthInPixels,DwellTimeInMicroseconds,FileName,FOV,maxiter-1,single);
+    [z,finalWD,I1,I2]=MAPFoSt(ImageHeightInPixels,ImageWidthInPixels,DwellTimeInMicroseconds,FileName,FOV,maxiter-1);
 else
     if fallback
         sm.Execute('CMD_AUTO_FOCUS_FINE');

@@ -28,6 +28,7 @@ defaultMontageParameters.IsTargetFocus =1;
 defaultMontageParameters.IsSingle_AF_ForWholeMontage = false;
 defaultMontageParameters.IsSingle_AFASAF_ForWholeMontage = true;
 defaultMontageParameters.IsAFOnEveryTile = false;
+defaultMontageParameters.IsAFOnEveryTileMAPFoSt = false; 
 defaultMontageParameters.IsAFASAFOnEveryTile = false;
 defaultMontageParameters.IsPlaneFit = false;
 defaultMontageParameters.IsXFit = false;
@@ -67,7 +68,7 @@ defaultFields = fields(defaultMontageParameters);
 if isfield(GuiGlobalsStruct,'MontageParameters')  %update old paramets
     currentFields = fields(GuiGlobalsStruct.MontageParameters);
 
-    for i = 1:length(defaultFields) 
+    for i = 1:length(defaultFields)
         if ~sum(cell2mat(regexp(currentFields,defaultFields{i})))
            GuiGlobalsStruct.MontageParameters = ...
                setfield(GuiGlobalsStruct.MontageParameters, defaultFields{i},getfield(defaultMontageParameters,defaultFields{i})) ;
@@ -76,6 +77,3 @@ if isfield(GuiGlobalsStruct,'MontageParameters')  %update old paramets
 else
     GuiGlobalsStruct.MontageParameters = defaultMontageParameters;
 end
-
-
-

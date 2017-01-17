@@ -1,8 +1,8 @@
 %Script for determining MAPFoSt NA based on experimental images
 close all
 clear
-imagepath='../../../MAPFoSt-test-images/test images 6_28_16/';
-imagedir=dir([imagepath '[* 15 -15].mat']);
+imagepath='F:\PNI-Images\Ashwin\MAPFoSt-test-images\test-images-1_12_17\';
+imagedir=dir([imagepath '*.mat']);
 imagedir=imagedir(1:30,1);
 %% initial log scale search over 4 orders of magnitude
 min_value=0.01; %initialization, NA must be within 2 orders of magnitude of this value

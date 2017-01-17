@@ -2,7 +2,7 @@ global GuiGlobalsStruct;
 sm = GuiGlobalsStruct.MyCZEMAPIClass; %To shorten calls to global API variables in this function
 clc;
 
-filepath='E:\PNI-Images\Eli\testimages\';
+filepath='F:\PNI-Images\Ashwin\MAPFoSt-test-images\';
 
 %autofocus (AS-AF) at beginning
 
@@ -29,8 +29,6 @@ tic;
 A=i;
 T1=15;
 T2=-15;
-
-
 
 FileName = [filepath 'temFoc.tif'];
 ImageHeightInPixels = 1024;
@@ -132,7 +130,7 @@ T1nom=T1;
 T1=10^6*(T1WD-CurrentWorkingDistance);
 T2nom=T2;
 T2=10^6*(T2WD-CurrentWorkingDistance);
-save([filepath 'MAPFoSt-test-images\test images 8_9_16\' mat2str([Anom T1nom T2nom]) 'PixSize' num2str(PixSize)],'A','T1','T2','I1','I2','Anom','T1nom','T2nom','FOV');
+save([filepath '\test-images-1_12_17\' mat2str([Anom T1nom T2nom]) 'PixSize' num2str(PixSize)],'A','T1','T2','I1','I2','Anom','T1nom','T2nom','FOV');
 
 
 end
