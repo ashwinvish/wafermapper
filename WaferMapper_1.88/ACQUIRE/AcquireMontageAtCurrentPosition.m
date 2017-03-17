@@ -223,11 +223,6 @@ if GuiGlobalsStruct.MontageParameters.IsSingle_AFASAF_ForWholeMontage
 
     %Reset initial WD using AFStartingWDd from Montage Parameters
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
-
-
-
-
-
     BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
     BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
@@ -558,6 +553,7 @@ for tileGroup = 1:    length(groupTiles)
                 %Added by Elias Wang (8/5/16) for MAPFoSt AF on every tile
                 if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt
                     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
+                    %GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
                     pause(1); %1
                     %Perform MAPFoSt AutoFocus;
                     StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;

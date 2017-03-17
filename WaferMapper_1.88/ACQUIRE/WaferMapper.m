@@ -1248,7 +1248,7 @@ function ThresholdImages_MenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to ThresholdImages_MenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-uiwait(SectionMaskGui);
+uiwait(SectionMaskGUI);
 
 set(handles.ThresholdImages_MenuItem,'Checked','on');
 set(handles.AutoMapAllSections_MenuItem,'Enable','on');
@@ -1258,7 +1258,7 @@ function AutoMapAllSections_MenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to AutoMapAllSections_MenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-uiwait(AutoMapGui);
+uiwait(AutoMapGUI);
 
 set(handles.AutoMapAllSections_MenuItem,'Checked','on');
 set(handles.PerformPixelToStageCalibration_MenuItem,'Enable','on');
