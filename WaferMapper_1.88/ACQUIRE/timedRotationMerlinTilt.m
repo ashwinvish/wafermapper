@@ -37,22 +37,23 @@ T =  48.4;
 
 
 sm.Set_PassedTypeSingle('AP_STAGE_GOTO_X',X);
-smwait(sm,'DP_STAGE_IS');
+sm.wait(sm,'DP_STAGE_IS');
 
 sm.Set_PassedTypeSingle('AP_STAGE_GOTO_Y',Y);
-smwait(sm,'DP_STAGE_IS');
+sm.wait(sm,'DP_STAGE_IS');
 
 sm.Set_PassedTypeSingle('AP_STAGE_GOTO_Z',Z);
-smwait(sm,'DP_STAGE_IS');
+sm.wait(sm,'DP_STAGE_IS');
 
 sm.Set_PassedTypeSingle('AP_STAGE_GOTO_T',T);
-smwait(sm,'DP_STAGE_IS');
+sm.wait(sm,'DP_STAGE_IS');
 
 
-tic
+%tic
 
 
 %% Rotate
+tic;
 Time = 200; %minutes
 sm.Set_PassedTypeString('DP_STAGE_BACKLASH','Off')
 startRotationTime = clock;

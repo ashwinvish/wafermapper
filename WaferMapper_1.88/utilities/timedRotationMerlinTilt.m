@@ -53,6 +53,7 @@ tic
 
 
 %% Rotate
+tic
 Time = 200; %minutes
 sm.Set_PassedTypeString('DP_STAGE_BACKLASH','Off')
 startRotationTime = clock;

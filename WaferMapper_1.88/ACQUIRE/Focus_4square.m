@@ -4,7 +4,6 @@ function[groupTiles focusPoints] = Focus_4square(listStageX_Meters,listStageY_Me
 %function has properly setup the scan rotation.
 global GuiGlobalsStruct;
 
-
 shortTiles = fix((allTiles+1)/2);
 groupNum = sub2ind([max(shortTiles(:,1)) max(shortTiles(:,2))], shortTiles(:,1), shortTiles(:,2));
 

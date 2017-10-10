@@ -121,7 +121,7 @@ delete(FileName);
 
 %% MAPFoSt
 % setup variables
-NA=0.0075; %empirically determined NA, rad
+NA=0.01025; %empirically determined NA, rad
 sigma =mean([std(double(I1(:))), std(double(I2(:)))]); % determine sigma for real space, approximation for shot noise
 [Kx, Ky]=meshgrid((mod(0.5+[0:ImageWidthInPixels-1]/ImageWidthInPixels,1)-0.5)*(6.28*ImageWidthInPixels/FOV),(mod(0.5+[0:ImageHeightInPixels-1]/ImageHeightInPixels,1)-0.5)*(6.28*ImageHeightInPixels/FOV)); % use mod instead of cirshift for backwards compatibilty, rad/um
 %[Kx, Ky]=meshgrid((circshift([0:ImageWidthInPixels-1]/ImageWidthInPixels,ImageWidthInPixels/2,2)-0.5)*(6.28*ImageWidthInPixels/FOV),(circshift([0:ImageHeightInPixels-1]/ImageHeightInPixels,ImageHeightInPixels/2,2)-0.5)*(6.28*ImageHeightInPixels/FOV)); % calculate wave vectors, rad/um

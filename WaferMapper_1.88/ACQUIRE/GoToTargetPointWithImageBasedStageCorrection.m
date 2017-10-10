@@ -277,21 +277,21 @@ end
     EqualizeMags_ForUseWith3xLargerFOV(OriginalImage_x3LargerROI_Filtered, CurrentImage_Filtered, IBSC_ScaleFactor);
 
 %Temporary resize
-[fixY fixX] = size(OriginalImage_x3LargerROI_Filtered_Scaled);
-fixY = round(fixY/3); fixX = round(fixX/3);
-
-OriginalImage_x3LargerROI_Filtered_Scaled = OriginalImage_x3LargerROI_Filtered_Scaled(fixY+1:fixY*2,fixX+1:fixX*2);
-
-AnglesInDegreesToTryArray = [-3 -2, -1,0, 1, 2,3];
-disp('CalcPixelOffsetAndAngleBetweenTwoImages_UsingOriginal')
-[XOffsetOfNewInPixels, YOffsetOfNewInPixels, AngleOffsetOfNewInDegrees, FigureOfMerit] =...
-    CalcPixelOffsetAndAngleBetweenTwoImages_UsingOriginal(OriginalImage_x3LargerROI_Filtered_Scaled, CurrentImage_Filtered_Scaled, AnglesInDegreesToTryArray)
-
+% [fixY fixX] = size(OriginalImage_x3LargerROI_Filtered_Scaled);
+% fixY = round(fixY/3); fixX = round(fixX/3);
+% 
+% OriginalImage_x3LargerROI_Filtered_Scaled = OriginalImage_x3LargerROI_Filtered_Scaled(fixY+1:fixY*2,fixX+1:fixX*2);
+% 
+% AnglesInDegreesToTryArray = [-3 -2, -1,0, 1, 2,3];
+% disp('CalcPixelOffsetAndAngleBetweenTwoImages_UsingOriginal')
+% [XOffsetOfNewInPixels, YOffsetOfNewInPixels, AngleOffsetOfNewInDegrees, FigureOfMerit] =...
+%     CalcPixelOffsetAndAngleBetweenTwoImages_UsingOriginal(OriginalImage_x3LargerROI_Filtered_Scaled, CurrentImage_Filtered_Scaled, AnglesInDegreesToTryArray)
+% 
 
 %%%%
-% AnglesInDegreesToTryArray = [-2, -1,0, 1, 2];
-% [XOffsetOfNewInPixels, YOffsetOfNewInPixels, AngleOffsetOfNewInDegrees, FigureOfMerit] =...
-%     CalcPixelOffsetAndAngleBetweenTwoImages_UsingOriginalWith3xFOV(OriginalImage_x3LargerROI_Filtered, CurrentImage_Filtered, AnglesInDegreesToTryArray)
+AnglesInDegreesToTryArray = [-2, -1,0, 1, 2];
+[XOffsetOfNewInPixels, YOffsetOfNewInPixels, AngleOffsetOfNewInDegrees, FigureOfMerit] =...
+    CalcPixelOffsetAndAngleBetweenTwoImages_UsingOriginalWith3xFOV(OriginalImage_x3LargerROI_Filtered, CurrentImage_Filtered_Scaled, AnglesInDegreesToTryArray)
 
  
 

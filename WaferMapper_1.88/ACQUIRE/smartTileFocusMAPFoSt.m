@@ -8,19 +8,19 @@ sm = GuiGlobalsStruct.MyCZEMAPIClass; %To shorten calls to global API variables 
 targetFocus = GuiGlobalsStruct.MontageParameters.IsTargetFocus;
 WDResetThreshold = GuiGlobalsStruct.MontageParameters.WDResetThreshold;
 
-
+sm.Set_PassedTypeSingle('DP_BEAM_BLANKED',0);
 if ~exist('focOptions','var')
    focOptions.IsDoQualCheck = 0;
    focOptions.QualityThreshold = 0;
 end
 
 %set up MAPFoSt variables
-MAPFoSt_image_height=128; %test image height in pixels
-MAPFoSt_image_width=128; %test image width in pixels
+MAPFoSt_image_height=1024; %test image height in pixels
+MAPFoSt_image_width=1024; %test image width in pixels
 MAPFoSt_image_dwelltime_us=2; %test image dwelltime in microseconds
 MAPFoSt_image_FOV=8.192; %test image FOV in microns
 MAPFoSt_maxiter=3; %max number of iterations for MAPFoSt
-MAPFoSt_fallback=1; %boolean for defaulting to Zeiss AF
+MAPFoSt_fallback=0; %boolean for defaulting to Zeiss AF
 MAPFoSt_verbosity=0;
 
 FOV = GuiGlobalsStruct.MontageParameters.TileFOV_microns; %change to optimal FOV for MAPFoSt
@@ -162,7 +162,7 @@ pause(3)
 
 disp('Auto Focusing...');
 MAPFoSt(MAPFoSt_image_height,MAPFoSt_image_width,MAPFoSt_image_dwelltime_us,MAPFoSt_image_filename,MAPFoSt_image_FOV,MAPFoSt_maxiter,MAPFoSt_fallback,MAPFoSt_verbosity);
-
+sm.Set_PassedTypeSingle('DP_BEAM_BLANKED',0);
 ResultWD =sm.Get_ReturnTypeSingle('AP_WD');
 ResultWD1 = ResultWD*1000;
 

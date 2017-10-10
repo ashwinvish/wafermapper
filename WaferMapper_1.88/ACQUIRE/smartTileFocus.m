@@ -177,7 +177,6 @@ if IsPerformAutoStig
     %%%%%%%%%%%%%%%
     for repeatStig = 1:1
         sm.Set_PassedTypeSingle('AP_Mag',StartingMagForAS / repeatStig);
-        
         AutoWorkingDistance =sm.Get_ReturnTypeSingle('AP_WD');
     if (abs(AutoWorkingDistance - CurrentWorkingDistance) > WDResetThreshold)
         %If the WD has gone far enough from CurrentWorkingDistance
@@ -193,7 +192,7 @@ if IsPerformAutoStig
         pause(.1)
     end
         %Temporary hard code settings
-        sm.Set_PassedTypeSingle('AP_Mag',5000 / repeatStig);
+        sm.Set_PassedTypeSingle('AP_Mag',15000 / repeatStig);
         sm.Set_PassedTypeSingle('DP_AutoFunction_ScanRate',AFscanRate);
         sm.Set_PassedTypeSingle('DP_IMAGE_STORE',AFImageStore);
         pause(0.01);
@@ -279,7 +278,7 @@ if IsPerformAutoStig
         %Reset to initial WD for calculation, CurrentWorkingDistance
         %(=AFStartingWD)
        %%%%Need to fix in Montage GUI
-        sm.Set_PassedTypeSingle('AP_WD', GuiGlobalsStruct.CurrentWorkingDistance );
+        %sm.Set_PassedTypeSingle('AP_WD', GuiGlobalsStruct.CurrentWorkingDistance );
        %%%% 
         
         %%%% temporary until Montage GUI is working
