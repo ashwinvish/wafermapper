@@ -1,8 +1,8 @@
-MAPFoSt_image_height = 1024;
-MAPFoSt_image_width = 1024;
+MAPFoSt_image_height = 512;
+MAPFoSt_image_width = 512;
 MAPFoSt_image_dwelltime_us = 2;
 MAPFoSt_image_filename = 'F:\PNI-Images\Ashwin\MAPFoSt-test-images\test.tif';
-MAPFoSt_image_FOV = 8.192;
+MAPFoSt_image_FOV = 20;
 MAPFoSt_maxiter =3; 
 MAPFoSt_fallback = 0;
 

@@ -39,7 +39,9 @@ StartingMagForAS = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
 startScanRot = sm.Get_ReturnTypeSingle('AP_SCANROTATION');
 
 %Reset initial WD using AFStartingWDd from Montage Parameters
-GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+%GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+%added by AV, begin AF at previous location.
+GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_WD'))
 
 CurrentWorkingDistance = sm.Get_ReturnTypeSingle('AP_WD');
 

@@ -25,8 +25,10 @@ s = FOV/ImageHeightInPixels/1000000; %scale meters per pixel
 
 
 sm = GuiGlobalsStruct.MyCZEMAPIClass;
-StartingMagForAF =3000;
+
+StartingMagForAF = 3000;
 StartingMagForAS = 3000;
+
 if ~exist('IsPerformAutoStig','var')
     IsPerformAutoStig = 0;
 end

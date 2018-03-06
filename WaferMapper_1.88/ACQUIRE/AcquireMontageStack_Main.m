@@ -396,8 +396,9 @@ logBook.waferProgress = waferProgress;
         end
         
         %Reset initial WD using AFStartingWDd from Montage Parameters
-        GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
-        
+       % GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+       %added by Av to resume AF from where the previous section finished.
+        GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_WD'))
         GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',GuiGlobalsStruct.MontageParameters.StartingStigX);
         GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_Y',GuiGlobalsStruct.MontageParameters.StartingStigY);
         pause(.1)

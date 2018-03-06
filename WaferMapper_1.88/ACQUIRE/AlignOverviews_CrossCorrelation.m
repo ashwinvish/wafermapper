@@ -3,8 +3,9 @@ function[] = AlignOverviewsr_crossCorrelation
 global GuiGlobalsStruct
 start = tic;
 
-waferName = GuiGlobalsStruct.WaferName;
-waferDir = [GuiGlobalsStruct.UTSLDirectory '\' waferName];
+%waferName = GuiGlobalsStruct.WaferName;
+%waferDir = [GuiGlobalsStruct.UTSLDirectory '\' waferName];
+waferDir = GuiGlobalsStruct.WaferDirectory;
 SectionOverviewsDirectory =[ waferDir '\SectionOverviewsDirectory'];
 SectionOverviewTemplateDirectory =[ waferDir '\SectionOverviewTemplateDirectory'];
 SectionOverviewsAlignedWithTemplateDirectory = [waferDir '\SectionOverviewsAlignedWithTemplateDirectory'];

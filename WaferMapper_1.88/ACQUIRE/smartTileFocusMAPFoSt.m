@@ -1,4 +1,4 @@
-function[focusPosition] = smartTileFocusMAPFoSt(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions)
+function[focusPosition] = smartTileFocusMAPFoSt(StartingWDForAF, StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions)
 %% smartTileFocus using MAPFoSt algorithm
 %% focus position is returned as XY
 %% Retrieve necessary info
@@ -15,13 +15,13 @@ if ~exist('focOptions','var')
 end
 
 %set up MAPFoSt variables
-MAPFoSt_image_height=1024; %test image height in pixels
-MAPFoSt_image_width=1024; %test image width in pixels
+MAPFoSt_image_height=512; %test image height in pixels
+MAPFoSt_image_width=512; %test image width in pixels
 MAPFoSt_image_dwelltime_us=2; %test image dwelltime in microseconds
 MAPFoSt_image_FOV=8.192; %test image FOV in microns
 MAPFoSt_maxiter=3; %max number of iterations for MAPFoSt
-MAPFoSt_fallback=0; %boolean for defaulting to Zeiss AF
-MAPFoSt_verbosity=0;
+MAPFoSt_fallback=1; %boolean for defaulting to Zeiss AF
+MAPFoSt_verbosity=1;
 
 FOV = GuiGlobalsStruct.MontageParameters.TileFOV_microns; %change to optimal FOV for MAPFoSt
 
@@ -43,9 +43,10 @@ StartingMagForAS = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
 startScanRot = sm.Get_ReturnTypeSingle('AP_SCANROTATION');
 
 %Reset initial WD using AFStartingWDd from Montage Parameters
-GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+%GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+%GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD', GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_WD'));
 
-CurrentWorkingDistance = sm.Get_ReturnTypeSingle('AP_WD');
+CurrentWorkingDistance = StartingWDForAF;
 
 %Reset initial stig values using StartingStigX and StartingStigY from
 %Montage Parameters
@@ -153,7 +154,7 @@ sm.Set_PassedTypeSingle('DP_AutoFunction_ScanRate',AFscanRate);
 sm.Set_PassedTypeSingle('DP_IMAGE_STORE',AFImageStore);
 
 %%%%
-%sm.Set_PassedTypeSingle('DP_BEAM_BLANKED',0);
+sm.Set_PassedTypeSingle('DP_BEAM_BLANKED',0);
 %%%%
 %%LongPauseForStability
 %sm.Execute('MCL_jmFocusWoble')%run for 10 sec

@@ -252,7 +252,7 @@ if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt
     %Reset initial WD using AFStartingWDd from Montage Parameters
     %GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD', GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_WD'));
-   
+    
     BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
     BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_STIG_X',BestGuess_StigX);
@@ -265,7 +265,19 @@ if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt
     StartingMagForAS = round(StartingMagForAF); %previously stiged at half resolution
     focOptions.IsDoQualCheck = GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
     focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
-    smartTileFocusMAPFoSt(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+    
+    %performing MAPFost three times successively.
+    StartingWDForAF = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_WD');
+    smartTileFocusMAPFoSt(StartingWDForAF, StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+    StartingWDForAF = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_WD');
+    smartTileFocusMAPFoSt(StartingWDForAF, StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+    StartingWDForAF = GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_WD');
+    smartTileFocusMAPFoSt(StartingWDForAF, StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+    
+    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('DP_BEAM_BLANKED',0)
+    
+    pause(1);
+    
     GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
         GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STIG_X'); %record this new value
     GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
@@ -273,6 +285,7 @@ if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt
     
     lastFocusPoint = [GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_X') ...
         GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STAGE_AT_Y')];
+    pause(1);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -428,7 +441,7 @@ numRetakes = 0; % keep track of retakes per section
 %             pause(.02)
 %         end
 %         wmBackLash
-%         
+%
 %         GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
 %         BestGuess_StigX = median(GuiGlobalsStruct.StigX_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end))); %takes median value of last 5 stigs
 %         BestGuess_StigY = median(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack((max(1,end-(GuiGlobalsStruct.NumOfStigValuesToMedianOver-1)):end)));
@@ -446,7 +459,7 @@ numRetakes = 0; % keep track of retakes per section
 %             GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STIG_X'); %record this new value
 %         GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack(1+length(GuiGlobalsStruct.StigY_ArrayOfValuesRecordedSinceStartOfMontageStack)) = ...
 %             GuiGlobalsStruct.MyCZEMAPIClass.Get_ReturnTypeSingle('AP_STIG_Y');
-%         
+%
 
 
 %% Main montage loop
@@ -580,19 +593,19 @@ for tileGroup = 1:    length(groupTiles)
                     smartTileFocus(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
                 end
                 
-                %Added by Elias Wang (8/5/16) for MAPFoSt AF on every tile
-                if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt
-                    GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
-                    %GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
-                    pause(1); %1
-                    %Perform MAPFoSt AutoFocus;
-                    StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
-                    IsPerformAutoStig = false;
-                    StartingMagForAS = round(StartingMagForAF/2);
-                    focOptions.IsDoQualCheck = GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
-                    focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
-                    smartTileFocusMAPFoSt(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
-                end %---End
+                %                 %Added by Elias Wang (8/5/16) for MAPFoSt AF on every tile
+                %                 if GuiGlobalsStruct.MontageParameters.IsAFOnEveryTileMAPFoSt
+                %                     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
+                %                     %GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',GuiGlobalsStruct.MontageParameters.AFStartingWD);
+                %                     pause(1); %1
+                %                     %Perform MAPFoSt AutoFocus;
+                %                     StartingMagForAF = GuiGlobalsStruct.MontageParameters.AutoFocusStartMag;
+                %                     IsPerformAutoStig = false;
+                %                     StartingMagForAS = round(StartingMagForAF/2);
+                %                     focOptions.IsDoQualCheck = GuiGlobalsStruct.MontageParameters.IsPerformQualityCheckOnEveryAF;
+                %                     focOptions.QualityThreshold = GuiGlobalsStruct.MontageParameters.AFQualityThreshold;
+                %                     smartTileFocusMAPFoSt(StartingMagForAF, IsPerformAutoStig, StartingMagForAS, focOptions);
+                %                 end %---End
                 
                 if GuiGlobalsStruct.MontageParameters.IsAFASAFOnEveryTile
                     GuiGlobalsStruct.MyCZEMAPIClass.Set_PassedTypeSingle('AP_WD',StartingPointWD);
